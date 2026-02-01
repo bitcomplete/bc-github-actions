@@ -1,0 +1,87 @@
+# Contributing to {{MARKETPLACE_NAME}}
+
+Thank you for your interest in contributing! This marketplace uses automated workflows to keep plugin metadata in sync.
+
+## Adding a Plugin
+
+1. **Fork and clone** this repository
+2. **Create a plugin directory** in the appropriate category:
+   ```
+   {{CATEGORIES_FIRST}}/your-plugin-name/
+   ```
+3. **Add your components**:
+   - `commands/` - Slash commands (`.md` files)
+   - `agents/` - Autonomous agents (`.md` files)
+   - `skills/` - Instructional skills (directories with `SKILL.md`)
+   - `hooks/hooks.json` - Event hooks (optional)
+   - `.mcp.json` - MCP servers (optional)
+
+4. **Test locally** with Claude Code
+5. **Open a pull request**
+
+## Component Guidelines
+
+### Naming
+
+- Use {{NAMING_PATTERN}} format
+- No reserved words: {{RESERVED_WORDS_LIST}}
+- Max 64 characters
+
+### Required Fields
+
+All components need frontmatter with:
+- `name`: Component name
+- `description`: Clear, concise description (max 1024 chars)
+
+### Commands
+
+```markdown
+---
+name: your-command
+type: command
+description: What this command does
+examples:
+  - /your-command
+---
+
+# Command Implementation
+```
+
+### Agents
+
+```markdown
+---
+name: your-agent
+type: agent
+version: 1.0.0
+description: What this agent does
+---
+
+# Agent System Prompt
+```
+
+### Skills
+
+```markdown
+---
+name: your-skill
+type: skill
+description: What this skill teaches
+---
+
+# Skill Instructions
+```
+
+## Automation
+
+After your PR merges:
+
+1. GitHub Actions validates your components
+2. `marketplace.json` and `plugin.json` files are auto-generated
+3. Your plugin becomes available via `/plugin install your-plugin-name`
+
+No manual JSON editing required!
+
+## Questions?
+
+Open an issue or check existing plugins for examples.

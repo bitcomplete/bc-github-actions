@@ -1,0 +1,20 @@
+name: Update Marketplace
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '{{PLUGIN_CATEGORIES}}/**'
+      - '.claude-plugin/**'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    uses: bitcomplete/bc-github-actions/.github/workflows/marketplace.yml@v1
+    with:
+      config-path: .claude-plugin/generator.config.toml
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}

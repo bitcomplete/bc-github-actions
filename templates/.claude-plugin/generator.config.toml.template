@@ -1,0 +1,59 @@
+# Marketplace Configuration for {{MARKETPLACE_SLUG}}
+# This configuration file controls component discovery, validation, and marketplace generation
+
+[marketplace]
+name = "{{MARKETPLACE_NAME}}"
+description = "{{MARKETPLACE_DESCRIPTION}}"
+pluginName = "{{MARKETPLACE_SLUG}}"
+pluginDescription = "{{MARKETPLACE_DESCRIPTION}}"
+
+[marketplace.owner]
+name = "{{OWNER_NAME}}"
+email = "{{OWNER_EMAIL}}"
+
+[discovery]
+# Directories to exclude from component discovery
+excludeDirs = [".git", "node_modules", ".github", ".claude", "templates", "test-components"]
+
+# Glob patterns to exclude (case-insensitive)
+excludePatterns = ["**/template/**", "**/*template*/**"]
+
+# Maximum directory nesting depth to scan
+maxDepth = 10
+
+# Name of the skill definition file
+skillFilename = "SKILL.md"
+
+# Component directories
+commandsDir = "commands"
+agentsDir = "agents"
+
+# Component files
+hooksFile = "hooks/hooks.json"
+mcpFile = ".mcp.json"
+
+[validation]
+# Maximum length for component names
+nameMaxLength = 64
+
+# Maximum length for component descriptions
+descriptionMaxLength = 1024
+
+# Reserved words that cannot appear in component names
+reservedWords = {{RESERVED_WORDS}}
+
+# Regex pattern for valid component names
+namePattern = "{{NAME_PATTERN}}"
+
+# Valid hook event types for hooks.json validation
+validHookEvents = [
+  "PreToolUse",
+  "PostToolUse",
+  "Stop",
+  "SubagentStop",
+  "SessionStart",
+  "SessionEnd",
+  "UserPromptSubmit",
+  "PreCompact",
+  "Notification"
+]

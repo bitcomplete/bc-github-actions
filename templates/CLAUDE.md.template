@@ -1,0 +1,64 @@
+# Claude Code Project Context
+
+## Project Overview
+
+This is {{MARKETPLACE_NAME}} - a Claude Code plugin marketplace for {{MARKETPLACE_DESCRIPTION}}.
+
+## Repository Structure
+
+```
+{{MARKETPLACE_SLUG}}/
+├── .claude-plugin/
+│   ├── marketplace.json           # Auto-generated marketplace manifest
+│   └── generator.config.toml      # Marketplace configuration
+├── .github/
+│   └── workflows/
+│       ├── update-marketplace.yml # Auto-update marketplace.json
+│       └── validate-components.yml # Validate on PRs
+{{#CATEGORIES}}
+├── {{.}}/                         # Plugin category
+│   └── plugin-name/
+│       ├── .claude-plugin/
+│       │   └── plugin.json        # Auto-generated plugin metadata
+│       ├── commands/              # Slash commands
+│       ├── agents/                # Autonomous agents
+│       ├── skills/                # Instructional skills
+│       ├── hooks/                 # Event hooks
+│       └── .mcp.json              # MCP server config
+{{/CATEGORIES}}
+├── README.md
+├── CLAUDE.md
+└── CONTRIBUTING.md
+```
+
+## Plugin Development Guidelines
+
+### File Organization
+
+- Each plugin lives in its own directory under a category ({{CATEGORIES_LIST}})
+- Plugin structure follows Claude Code conventions:
+  - `.claude-plugin/plugin.json` - Auto-generated metadata
+  - `commands/` - Command files directly in this directory
+  - `skills/` - Skill directories with SKILL.md
+  - `agents/` - Agent definition files
+  - `hooks/hooks.json` - Event hooks
+  - `.mcp.json` - MCP server configuration
+
+### Code Style
+
+- No LLM-isms in commit messages, docs, or code
+- Direct, factual language
+- POSIX-compatible shell scripts (`#!/bin/sh`)
+- Cross-platform compatibility (macOS, Linux)
+
+### Automation
+
+The marketplace uses automated workflows from bc-github-actions:
+
+- **Auto-discovery**: Components are discovered automatically
+- **Validation**: Every PR validates component structure
+- **Sync**: marketplace.json stays current automatically
+
+## Questions?
+
+Check existing plugins for examples or open an issue.

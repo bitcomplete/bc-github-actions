@@ -1,0 +1,17 @@
+{
+  "name": "{{MARKETPLACE_SLUG}}",
+  "version": "1.0.0",
+  "description": "{{MARKETPLACE_DESCRIPTION}}",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/{{GITHUB_OWNER}}/{{MARKETPLACE_SLUG}}.git"
+  },
+  "keywords": [
+    "claude-code",
+    "marketplace",
+    "plugins"
+  ],
+  "author": "{{OWNER_NAME}} <{{OWNER_EMAIL}}>",
+  "license": "MIT"
+}

@@ -1,0 +1,39 @@
+# {{MARKETPLACE_NAME}}
+
+{{MARKETPLACE_DESCRIPTION}}
+
+## Installation
+
+Add this marketplace to Claude Code:
+
+```bash
+/plugin marketplace add {{GITHUB_OWNER}}/{{MARKETPLACE_SLUG}}
+```
+
+Then install any plugin:
+
+```bash
+/plugin install <plugin-name>
+```
+
+## Available Plugins
+
+Browse available plugins in `.claude-plugin/marketplace.json` or via Claude Code's plugin interface.
+
+## Contributing
+
+Want to add a plugin? See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## Automation
+
+This marketplace uses automated component discovery and validation:
+
+- Push to `main` triggers marketplace.json regeneration
+- PRs are validated automatically
+- No manual JSON editing required
+
+Powered by [bc-github-actions](https://github.com/bitcomplete/bc-github-actions).
+
+## Owner
+
+{{OWNER_NAME}} <{{OWNER_EMAIL}}>
