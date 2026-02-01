@@ -1,0 +1,56 @@
+name: 'Discover Marketplace Components'
+description: 'Discovers plugins, commands, agents, skills, hooks, and MCP servers in a Claude Code marketplace repository'
+author: 'Bitcomplete'
+
+inputs:
+  config-path:
+    description: 'Path to generator.config.toml'
+    required: false
+    default: '.claude-plugin/generator.config.toml'
+
+outputs:
+  plugins:
+    description: 'JSON array of discovered plugins'
+    value: ${{ steps.discover.outputs.plugins }}
+  components:
+    description: 'JSON object of all discovered components'
+    value: ${{ steps.discover.outputs.components }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Discover components
+      id: discover
+      shell: bash
+      env:
+        CONFIG_PATH: ${{ inputs.config-path }}
+      run: |
+        set -e
+
+        # Use bundled script from this action
+        SCRIPT_PATH="${GITHUB_ACTION_PATH}/../../scripts/dist/discover-components.cjs"
+
+        if [ ! -f "$SCRIPT_PATH" ]; then
+          echo "ERROR: Bundled script not found at $SCRIPT_PATH" >&2
+          exit 1
+        fi
+
+        echo "Discovering components..."
+        OUTPUT=$(node "$SCRIPT_PATH" discover-all 2>&1)
+
+        if [ $? -ne 0 ]; then
+          echo "ERROR: Discovery failed" >&2
+          echo "$OUTPUT" >&2
+          exit 1
+        fi
+
+        # Output for other steps
+        echo "components<<EOF" >> $GITHUB_OUTPUT
+        echo "$OUTPUT" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+        echo "✓ Discovery complete"
+
+branding:
+  icon: 'search'
+  color: 'blue'

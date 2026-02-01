@@ -1,0 +1,30 @@
+{
+  "name": "bc-github-actions",
+  "version": "1.0.0",
+  "description": "Reusable GitHub Actions workflows for Claude Code plugin marketplaces",
+  "private": false,
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node scripts/test/discover-components.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bitcomplete/bc-github-actions.git"
+  },
+  "keywords": [
+    "github-actions",
+    "claude-code",
+    "marketplace",
+    "automation"
+  ],
+  "author": "Bitcomplete <everyone@bitcomplete.io>",
+  "license": "MIT",
+  "dependencies": {
+    "@iarna/toml": "^2.2.5",
+    "gray-matter": "^4.0.3",
+    "minimatch": "^9.0.3"
+  },
+  "devDependencies": {
+    "esbuild": "^0.19.11"
+  }
+}

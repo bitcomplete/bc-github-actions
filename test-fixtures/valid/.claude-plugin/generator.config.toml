@@ -1,0 +1,36 @@
+[marketplace]
+name = "test-marketplace"
+description = "Test marketplace for validation"
+pluginName = "test-marketplace"
+pluginDescription = "Test marketplace plugin"
+
+[marketplace.owner]
+name = "Test Owner"
+email = "test@example.com"
+
+[discovery]
+excludeDirs = [".git", "node_modules", ".github", ".claude", "templates", "test-components"]
+excludePatterns = ["**/template/**", "**/*template*/**"]
+maxDepth = 10
+skillFilename = "SKILL.md"
+commandsDir = "commands"
+agentsDir = "agents"
+hooksFile = "hooks/hooks.json"
+mcpFile = ".mcp.json"
+
+[validation]
+nameMaxLength = 64
+descriptionMaxLength = 1024
+reservedWords = ["anthropic", "claude"]
+namePattern = "^[a-z0-9]+(-[a-z0-9]+)*$"
+validHookEvents = [
+  "PreToolUse",
+  "PostToolUse",
+  "Stop",
+  "SubagentStop",
+  "SessionStart",
+  "SessionEnd",
+  "UserPromptSubmit",
+  "PreCompact",
+  "Notification"
+]

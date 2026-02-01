@@ -1,0 +1,8 @@
+{
+  "name": "test-plugin",
+  "description": "A test plugin for validation",
+  "author": {
+    "name": "Test Owner",
+    "email": "test@example.com"
+  }
+}

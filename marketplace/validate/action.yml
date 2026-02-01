@@ -1,0 +1,63 @@
+name: 'Validate Marketplace Components'
+description: 'Validates all discovered components against marketplace standards'
+author: 'Bitcomplete'
+
+inputs:
+  config-path:
+    description: 'Path to generator.config.toml'
+    required: false
+    default: '.claude-plugin/generator.config.toml'
+  fail-on-error:
+    description: 'Exit with error code if validation fails'
+    required: false
+    default: 'true'
+
+outputs:
+  valid:
+    description: 'Whether all components are valid (true/false)'
+    value: ${{ steps.validate.outputs.valid }}
+  errors:
+    description: 'JSON array of validation errors'
+    value: ${{ steps.validate.outputs.errors }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Validate components
+      id: validate
+      shell: bash
+      env:
+        CONFIG_PATH: ${{ inputs.config-path }}
+        FAIL_ON_ERROR: ${{ inputs.fail-on-error }}
+      run: |
+        set -e
+
+        # Use bundled script from this action
+        SCRIPT_PATH="${GITHUB_ACTION_PATH}/../../scripts/dist/discover-components.cjs"
+
+        if [ ! -f "$SCRIPT_PATH" ]; then
+          echo "ERROR: Bundled script not found at $SCRIPT_PATH" >&2
+          exit 1
+        fi
+
+        echo "Validating components..."
+
+        if node "$SCRIPT_PATH" validate; then
+          echo "valid=true" >> $GITHUB_OUTPUT
+          echo "errors=[]" >> $GITHUB_OUTPUT
+          echo "✓ All components valid"
+          exit 0
+        else
+          echo "valid=false" >> $GITHUB_OUTPUT
+          echo "✗ Validation failed"
+
+          if [ "$FAIL_ON_ERROR" = "true" ]; then
+            exit 1
+          else
+            exit 0
+          fi
+        fi
+
+branding:
+  icon: 'check-circle'
+  color: 'green'

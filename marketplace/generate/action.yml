@@ -1,0 +1,100 @@
+name: 'Generate Marketplace Files'
+description: 'Generates marketplace.json and plugin.json files from discovered components'
+author: 'Bitcomplete'
+
+inputs:
+  config-path:
+    description: 'Path to generator.config.toml'
+    required: false
+    default: '.claude-plugin/generator.config.toml'
+  github-token:
+    description: 'GitHub token for creating PRs'
+    required: true
+  auto-merge:
+    description: 'Enable auto-merge for generated PR'
+    required: false
+    default: 'true'
+  dry-run:
+    description: 'Preview changes without committing'
+    required: false
+    default: 'false'
+
+outputs:
+  pr-number:
+    description: 'Pull request number if created'
+    value: ${{ steps.create-pr.outputs.pull-request-number }}
+  pr-url:
+    description: 'Pull request URL if created'
+    value: ${{ steps.create-pr.outputs.pull-request-url }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Generate marketplace files
+      shell: bash
+      env:
+        CONFIG_PATH: ${{ inputs.config-path }}
+      run: |
+        set -e
+
+        # Use bundled script from this action
+        SCRIPT_PATH="${GITHUB_ACTION_PATH}/../../scripts/dist/discover-components.cjs"
+
+        if [ ! -f "$SCRIPT_PATH" ]; then
+          echo "ERROR: Bundled script not found at $SCRIPT_PATH" >&2
+          exit 1
+        fi
+
+        echo "Generating marketplace files..."
+        node "$SCRIPT_PATH" generate
+
+        echo "✓ Generation complete"
+
+    - name: Create Pull Request
+      id: create-pr
+      if: ${{ inputs.dry-run != 'true' }}
+      uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
+      with:
+        token: ${{ inputs.github-token }}
+        commit-message: 'chore: update marketplace.json'
+        title: 'chore: update marketplace.json'
+        body: |
+          Auto-generated marketplace.json and plugin.json updates from plugin component changes.
+
+          This PR is automatically created when plugin components are added, modified, or removed on the main branch.
+
+          The files are regenerated based on:
+          - Plugins discovered in two-level hierarchy: `category/plugin-name/`
+          - Plugin components: agents/, commands/, skills/
+          - Hooks in `hooks/hooks.json`
+          - MCP servers in `.mcp.json`
+          - Settings in `.claude-plugin/generator.config.toml` or `.claude-plugin/generator.config.json`
+
+          **Generated files:**
+          - `.claude-plugin/marketplace.json` - marketplace manifest with unique source paths per plugin
+          - `category/plugin-name/.claude-plugin/plugin.json` - individual plugin metadata
+
+          **This PR will auto-merge after CI checks pass.**
+        branch: auto-update-marketplace
+        delete-branch: true
+        labels: |
+          automated
+          marketplace
+
+    - name: Enable auto-merge
+      if: ${{ inputs.dry-run != 'true' && inputs.auto-merge == 'true' && steps.create-pr.outputs.pull-request-number != '' }}
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ steps.create-pr.outputs.pull-request-number }}
+      run: |
+        if [ -n "$PR_NUMBER" ]; then
+          echo "Enabling auto-merge for PR #$PR_NUMBER"
+          gh pr merge "$PR_NUMBER" --auto --squash
+        else
+          echo "No PR created (no changes detected)"
+        fi
+
+branding:
+  icon: 'file-text'
+  color: 'purple'
