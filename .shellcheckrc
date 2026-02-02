@@ -1,0 +1,8 @@
+# Shellcheck configuration for bc-github-actions
+# See: https://github.com/koalaman/shellcheck/wiki/Ignore
+
+# Don't follow sourced files - they may be generated or in other repos
+disable=SC1091
+
+# Allow referencing undefined variables set by Claude Code runtime
+disable=SC2154
