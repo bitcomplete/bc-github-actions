@@ -40,9 +40,6 @@ jobs:
 
   test-discover-action:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: test-fixtures/valid
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -51,7 +48,7 @@ jobs:
         id: discover
         uses: ./agentic-marketplace/discover
         with:
-          config-path: '.claude-plugin/generator.config.toml'
+          config-path: 'test-fixtures/valid/.claude-plugin/generator.config.toml'
 
       - name: Verify discovery output
         run: |
@@ -60,9 +57,6 @@ jobs:
 
   test-validate-action:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: test-fixtures/valid
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -70,7 +64,7 @@ jobs:
       - name: Test validate action
         uses: ./agentic-marketplace/validate
         with:
-          config-path: '.claude-plugin/generator.config.toml'
+          config-path: 'test-fixtures/valid/.claude-plugin/generator.config.toml'
 
   test-end-to-end:
     runs-on: ubuntu-latest
