@@ -1,6 +1,6 @@
 # Bitcomplete GitHub Actions
 
-Reusable GitHub Actions workflows for Claude Code development. We use these workflows ourselves, and now you can too.
+Reusable GitHub Actions workflows for Claude Code development and Platform Engineering. We use these workflows ourselves, and now you can too.
 
 ## Available Workflows
 
@@ -21,12 +21,14 @@ Plugin marketplaces shouldn't require babysitting. These workflows handle the bo
 
 ### More Coming Soon
 
-We're actively developing additional workflows for Claude Code development:
+We're actively developing additional workflows:
 - Shell script quality and validation
 - Plugin structure validation
 - Documentation generation
 - Release automation
 - Testing frameworks
+- Infrastructure as Code validation
+- Security scanning and compliance
 
 Check back regularly for new additions, or watch this repository for updates.
 
