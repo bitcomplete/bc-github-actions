@@ -9,7 +9,8 @@ name = "Test Owner"
 email = "test@example.com"
 
 [discovery]
-excludeDirs = [".git", "node_modules", ".github", ".claude", "templates", "test-components"]
+pluginCategories = ["analysis/**"]
+excludeDirs = [".git", "node_modules", ".github", ".claude", "templates", "test-components", "docs"]
 excludePatterns = ["**/template/**", "**/*template*/**"]
 maxDepth = 10
 skillFilename = "SKILL.md"

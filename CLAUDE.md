@@ -27,8 +27,8 @@ bc-github-actions/
 │   └── workflows/
 │       ├── test.yml                       # Self-tests
 │       ├── release.yml                    # Version tagging automation
-│       └── marketplace.yml                # REUSABLE WORKFLOW
-├── marketplace/
+│       └── agentic-marketplace.yml        # REUSABLE WORKFLOW
+├── agentic-marketplace/
 │   ├── discover/
 │   │   └── action.yml                     # Composite action
 │   ├── validate/
@@ -62,12 +62,12 @@ bc-github-actions/
 
 ### 1. Hybrid Approach: Composite Actions + Reusable Workflow
 
-**Reusable workflow** (`.github/workflows/marketplace.yml`) for:
-- Full marketplace pipelines (orchestrating steps)
+**Reusable workflow** (`.github/workflows/agentic-marketplace.yml`) for:
+- Full agentic marketplace pipelines (orchestrating steps)
 - Operations requiring secrets (GitHub token for PRs)
 - Job-level parallelism
 
-**Composite actions** (`marketplace/*/action.yml`) for:
+**Composite actions** (`agentic-marketplace/*/action.yml`) for:
 - Single-purpose operations (discover, validate, generate)
 - Maximum composability
 - Can be used standalone or via workflow
