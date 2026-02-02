@@ -1,8 +1,10 @@
 # Bitcomplete GitHub Actions
 
-The automation behind Claude Code plugin marketplaces. We use these workflows ourselves, and now you can too.
+Reusable GitHub Actions workflows for Claude Code development. We use these workflows ourselves, and now you can too.
 
-## What This Does
+## Available Workflows
+
+### Marketplace Automation
 
 Plugin marketplaces shouldn't require babysitting. These workflows handle the boring stuff:
 
@@ -10,18 +12,27 @@ Plugin marketplaces shouldn't require babysitting. These workflows handle the bo
 - **Validation** - Every PR gets checked for proper structure and naming.
 - **Sync** - marketplace.json stays current automatically.
 
-## Why We Built This
-
-| The old way | With these actions |
-|-------------|-------------------|
+| The old way | With marketplace actions |
+|-------------|--------------------------|
 | Edit JSON by hand | Auto-discovery on push |
 | Inconsistent naming | Standards enforced |
 | Stale marketplace files | Always in sync |
 | "It worked on my machine" | Validated before merge |
 
-We got tired of the manual work. You shouldn't have to deal with it either.
+### More Coming Soon
+
+We're actively developing additional workflows for Claude Code development:
+- Shell script quality and validation
+- Plugin structure validation
+- Documentation generation
+- Release automation
+- Testing frameworks
+
+Check back regularly for new additions, or watch this repository for updates.
 
 ## Quick Start
+
+### Using Marketplace Automation
 
 Add this to your marketplace's workflow:
 
