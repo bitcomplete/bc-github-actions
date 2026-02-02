@@ -1,4 +1,4 @@
-name: Marketplace Pipeline
+name: Agentic Marketplace Pipeline
 on:
   workflow_call:
     inputs:
@@ -33,7 +33,7 @@ jobs:
 
       - name: Discover components
         id: discover
-        uses: bitcomplete/bc-github-actions/marketplace/discover@v1
+        uses: bitcomplete/bc-github-actions/agentic-marketplace/discover@v1
         with:
           config-path: ${{ inputs.config-path }}
 
@@ -47,7 +47,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Validate components
-        uses: bitcomplete/bc-github-actions/marketplace/validate@v1
+        uses: bitcomplete/bc-github-actions/agentic-marketplace/validate@v1
         with:
           config-path: ${{ inputs.config-path }}
 
@@ -63,7 +63,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Generate marketplace files
-        uses: bitcomplete/bc-github-actions/marketplace/generate@v1
+        uses: bitcomplete/bc-github-actions/agentic-marketplace/generate@v1
         with:
           config-path: ${{ inputs.config-path }}
           github-token: ${{ secrets.token }}

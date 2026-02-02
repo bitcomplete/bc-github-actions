@@ -1,10 +1,10 @@
-# Marketplace Automation
+# Agentic Marketplace Automation
 
 Automates Claude Code plugin marketplace management through auto-discovery, validation, and synchronization.
 
 ## Overview
 
-The marketplace action provides three composable actions that work together to manage your Claude Code plugin marketplace:
+The agentic-marketplace action provides three composable actions that work together to manage your Claude Code plugin marketplace:
 
 1. **discover** - Finds plugins, commands, agents, skills, hooks, and MCP servers
 2. **validate** - Validates component structure, naming, and metadata
@@ -14,10 +14,10 @@ The marketplace action provides three composable actions that work together to m
 
 ### Using the Reusable Workflow (Recommended)
 
-Add `.github/workflows/marketplace.yml` to your marketplace repository:
+Add `.github/workflows/agentic-marketplace.yml` to your marketplace repository:
 
 ```yaml
-name: Update Marketplace
+name: Update Agentic Marketplace
 
 on:
   push:
@@ -27,7 +27,7 @@ on:
 
 jobs:
   update:
-    uses: bitcomplete/bc-github-actions/.github/workflows/marketplace.yml@v1
+    uses: bitcomplete/bc-github-actions/.github/workflows/agentic-marketplace.yml@v1
     with:
       config-path: .claude-plugin/generator.config.toml
     secrets:
@@ -39,32 +39,32 @@ jobs:
 For custom workflows, use the actions individually:
 
 ```yaml
-name: Custom Marketplace Workflow
+name: Custom Agentic Marketplace Workflow
 
 on:
   push:
     branches: [main]
 
 jobs:
-  marketplace:
+  agentic-marketplace:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Discover components
         id: discover
-        uses: bitcomplete/bc-github-actions/marketplace/discover@v1
+        uses: bitcomplete/bc-github-actions/agentic-marketplace/discover@v1
         with:
           config-path: .claude-plugin/generator.config.toml
 
       - name: Validate components
-        uses: bitcomplete/bc-github-actions/marketplace/validate@v1
+        uses: bitcomplete/bc-github-actions/agentic-marketplace/validate@v1
         with:
           config-path: .claude-plugin/generator.config.toml
           fail-on-error: true
 
       - name: Generate marketplace files
-        uses: bitcomplete/bc-github-actions/marketplace/generate@v1
+        uses: bitcomplete/bc-github-actions/agentic-marketplace/generate@v1
         with:
           config-path: .claude-plugin/generator.config.toml
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -86,7 +86,7 @@ Scans your repository for Claude Code components based on your configuration fil
 
 **Example:**
 ```yaml
-- uses: bitcomplete/bc-github-actions/marketplace/discover@v1
+- uses: bitcomplete/bc-github-actions/agentic-marketplace/discover@v1
   id: discover
   with:
     config-path: .claude-plugin/generator.config.toml
@@ -115,7 +115,7 @@ Validates discovered components against marketplace standards defined in your co
 
 **Example:**
 ```yaml
-- uses: bitcomplete/bc-github-actions/marketplace/validate@v1
+- uses: bitcomplete/bc-github-actions/agentic-marketplace/validate@v1
   id: validate
   with:
     config-path: .claude-plugin/generator.config.toml
@@ -148,7 +148,7 @@ Generates marketplace.json and plugin.json files, then creates a pull request wi
 
 **Example:**
 ```yaml
-- uses: bitcomplete/bc-github-actions/marketplace/generate@v1
+- uses: bitcomplete/bc-github-actions/agentic-marketplace/generate@v1
   id: generate
   with:
     config-path: .claude-plugin/generator.config.toml
@@ -204,7 +204,7 @@ your-marketplace/
 │   └── generator.config.toml     # Your configuration
 ├── .github/
 │   └── workflows/
-│       └── marketplace.yml        # Workflow file
+│       └── agentic-marketplace.yml        # Workflow file
 ├── code/                          # Category directory
 │   └── my-plugin/                 # Plugin directory
 │       ├── .claude-plugin/
@@ -297,7 +297,7 @@ Check that:
 Preview changes without creating a PR:
 
 ```yaml
-- uses: bitcomplete/bc-github-actions/marketplace/generate@v1
+- uses: bitcomplete/bc-github-actions/agentic-marketplace/generate@v1
   with:
     config-path: .claude-plugin/generator.config.toml
     github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -309,7 +309,7 @@ Preview changes without creating a PR:
 Disable auto-merge to review changes before merging:
 
 ```yaml
-- uses: bitcomplete/bc-github-actions/marketplace/generate@v1
+- uses: bitcomplete/bc-github-actions/agentic-marketplace/generate@v1
   with:
     config-path: .claude-plugin/generator.config.toml
     github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -321,7 +321,7 @@ Disable auto-merge to review changes before merging:
 Use validation output to implement custom logic:
 
 ```yaml
-- uses: bitcomplete/bc-github-actions/marketplace/validate@v1
+- uses: bitcomplete/bc-github-actions/agentic-marketplace/validate@v1
   id: validate
   with:
     fail-on-error: false

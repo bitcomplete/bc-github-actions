@@ -4,7 +4,7 @@ Reusable GitHub Actions workflows for Claude Code development and Platform Engin
 
 ## Actions
 
-### Marketplace Automation
+### Agentic Marketplace Automation
 
 Automates Claude Code plugin marketplace management through auto-discovery, validation, and synchronization.
 
@@ -14,11 +14,11 @@ Automates Claude Code plugin marketplace management through auto-discovery, vali
 - Automatic marketplace.json generation
 - PR-based workflow with optional auto-merge
 
-[View marketplace action documentation →](marketplace/README.md)
+[View agentic-marketplace action documentation →](agentic-marketplace/README.md)
 
-## Basic Marketplace Publish Workflow
+## Basic Agentic Marketplace Publish Workflow
 
-When you push changes to a marketplace repository, the workflow automatically discovers, validates, and updates your marketplace.json:
+When you push changes to an agentic marketplace repository, the workflow automatically discovers, validates, and updates your marketplace.json:
 
 ```mermaid
 graph LR
@@ -52,12 +52,12 @@ This happens automatically on every push to your main branch. No manual JSON edi
 
 ## Quick Start
 
-### Using Marketplace Automation
+### Using Agentic Marketplace Automation
 
-Add this to `.github/workflows/marketplace.yml` in your marketplace repository:
+Add this to `.github/workflows/agentic-marketplace.yml` in your marketplace repository:
 
 ```yaml
-name: Update Marketplace
+name: Update Agentic Marketplace
 
 on:
   push:
@@ -67,7 +67,7 @@ on:
 
 jobs:
   update:
-    uses: bitcomplete/bc-github-actions/.github/workflows/marketplace.yml@v1
+    uses: bitcomplete/bc-github-actions/.github/workflows/agentic-marketplace.yml@v1
     with:
       config-path: .claude-plugin/generator.config.toml
     secrets:
@@ -77,15 +77,15 @@ jobs:
 Or use individual actions in your own workflow:
 
 ```yaml
-- uses: bitcomplete/bc-github-actions/marketplace/discover@v1
+- uses: bitcomplete/bc-github-actions/agentic-marketplace/discover@v1
   with:
     config-path: .claude-plugin/generator.config.toml
 
-- uses: bitcomplete/bc-github-actions/marketplace/validate@v1
+- uses: bitcomplete/bc-github-actions/agentic-marketplace/validate@v1
   with:
     config-path: .claude-plugin/generator.config.toml
 
-- uses: bitcomplete/bc-github-actions/marketplace/generate@v1
+- uses: bitcomplete/bc-github-actions/agentic-marketplace/generate@v1
   with:
     config-path: .claude-plugin/generator.config.toml
     github-token: ${{ secrets.GITHUB_TOKEN }}
