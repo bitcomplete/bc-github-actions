@@ -56,6 +56,7 @@ runs:
       uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
       with:
         token: ${{ inputs.github-token }}
+        base: main
         commit-message: 'chore: update marketplace.json'
         title: 'chore: update marketplace.json'
         body: |
