@@ -1,31 +1,70 @@
 # Bitcomplete GitHub Actions
 
-The automation behind Claude Code plugin marketplaces. We use these workflows ourselves, and now you can too.
+Reusable GitHub Actions workflows for Claude Code development and Platform Engineering. We use these workflows ourselves, and now you can too.
 
-## What This Does
+## Actions
 
-Plugin marketplaces shouldn't require babysitting. These workflows handle the boring stuff:
+### Marketplace Automation
 
-- **Auto-discovery** - Push a plugin, it gets registered. No manual JSON editing.
-- **Validation** - Every PR gets checked for proper structure and naming.
-- **Sync** - marketplace.json stays current automatically.
+Automates Claude Code plugin marketplace management through auto-discovery, validation, and synchronization.
 
-## Why We Built This
+**Features:**
+- Auto-discovery of plugins and components
+- Structure and naming validation
+- Automatic marketplace.json generation
+- PR-based workflow with optional auto-merge
 
-| The old way | With these actions |
-|-------------|-------------------|
-| Edit JSON by hand | Auto-discovery on push |
-| Inconsistent naming | Standards enforced |
-| Stale marketplace files | Always in sync |
-| "It worked on my machine" | Validated before merge |
+[View marketplace action documentation →](marketplace/README.md)
 
-We got tired of the manual work. You shouldn't have to deal with it either.
+## Basic Marketplace Publish Workflow
+
+When you push changes to a marketplace repository, the workflow automatically discovers, validates, and updates your marketplace.json:
+
+```mermaid
+graph LR
+    A[Push to main] --> B[Discover]
+    B --> C[Validate]
+    C --> D[Generate]
+    D --> E[Create PR]
+    E --> F[Auto-merge]
+
+    B -->|Finds| B1[Plugins]
+    B -->|Finds| B2[Commands]
+    B -->|Finds| B3[Skills]
+
+    C -->|Checks| C1[Structure]
+    C -->|Checks| C2[Naming]
+    C -->|Checks| C3[Metadata]
+
+    D -->|Updates| D1[marketplace.json]
+    D -->|Updates| D2[Component files]
+```
+
+**How it works:**
+
+1. **Discover** - Scans your repository for plugins, commands, skills, and other components based on your configuration
+2. **Validate** - Checks that all components follow naming conventions, have required metadata, and match your validation rules
+3. **Generate** - Creates or updates marketplace.json with all discovered components
+4. **Create PR** - Opens a pull request with the changes for review
+5. **Auto-merge** - Optionally merges the PR automatically if validation passes
+
+This happens automatically on every push to your main branch. No manual JSON editing required.
 
 ## Quick Start
 
-Add this to your marketplace's workflow:
+### Using Marketplace Automation
+
+Add this to `.github/workflows/marketplace.yml` in your marketplace repository:
 
 ```yaml
+name: Update Marketplace
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
 jobs:
   update:
     uses: bitcomplete/bc-github-actions/.github/workflows/marketplace.yml@v1
@@ -35,25 +74,23 @@ jobs:
       token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-Or use individual actions:
+Or use individual actions in your own workflow:
 
 ```yaml
 - uses: bitcomplete/bc-github-actions/marketplace/discover@v1
+  with:
+    config-path: .claude-plugin/generator.config.toml
+
 - uses: bitcomplete/bc-github-actions/marketplace/validate@v1
+  with:
+    config-path: .claude-plugin/generator.config.toml
+
 - uses: bitcomplete/bc-github-actions/marketplace/generate@v1
+  with:
+    config-path: .claude-plugin/generator.config.toml
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+    auto-merge: true
 ```
-
-See [docs/USAGE.md](docs/USAGE.md) for configuration options.
-
-## Already Using a Bitcomplete Marketplace?
-
-You're set. These workflows run automatically when you merge changes.
-No action needed on your part—just keep shipping plugins.
-
-## Documentation
-
-- [Usage Guide](docs/USAGE.md) - Configuration and usage examples
-- [Customization](docs/CUSTOMIZATION.md) - Advanced configuration options
 
 ## Versioning
 
