@@ -2,6 +2,8 @@
 
 Automates Claude Code plugin marketplace management through auto-discovery, validation, and synchronization.
 
+**New to agentic marketplaces?** Check out the [Getting Started Guide](../GETTING_STARTED.md) for a step-by-step walkthrough.
+
 ## Overview
 
 The agentic-marketplace action provides three composable actions that work together to manage your Claude Code plugin marketplace:

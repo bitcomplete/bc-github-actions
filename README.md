@@ -2,6 +2,8 @@
 
 Reusable GitHub Actions workflows for Claude Code development and Platform Engineering. We use these workflows ourselves, and now you can too.
 
+**[📖 Getting Started Guide →](GETTING_STARTED.md)** - New to agentic marketplaces? Start here!
+
 ## Actions
 
 ### Agentic Marketplace Automation
