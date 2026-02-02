@@ -19,19 +19,6 @@ Plugin marketplaces shouldn't require babysitting. These workflows handle the bo
 | Stale marketplace files | Always in sync |
 | "It worked on my machine" | Validated before merge |
 
-### More Coming Soon
-
-We're actively developing additional workflows:
-- Shell script quality and validation
-- Plugin structure validation
-- Documentation generation
-- Release automation
-- Testing frameworks
-- Infrastructure as Code validation
-- Security scanning and compliance
-
-Check back regularly for new additions, or watch this repository for updates.
-
 ## Quick Start
 
 ### Using Marketplace Automation
