@@ -14,6 +14,14 @@ on:
         description: 'Preview changes without committing'
         default: false
         type: boolean
+      create-opencode-release:
+        description: 'Create OpenCode-compatible plugin releases'
+        default: false
+        type: boolean
+      release-version:
+        description: 'Version for releases (default: YYYY.MM.DD)'
+        default: ''
+        type: string
     secrets:
       token:
         description: 'GitHub token for PR creation'
@@ -68,3 +76,5 @@ jobs:
           config-path: ${{ inputs.config-path }}
           github-token: ${{ secrets.token }}
           auto-merge: ${{ inputs.auto-merge }}
+          create-opencode-release: ${{ inputs.create-opencode-release }}
+          release-version: ${{ inputs.release-version }}
