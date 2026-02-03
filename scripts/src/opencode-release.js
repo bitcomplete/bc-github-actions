@@ -259,7 +259,7 @@ function detectChangedPlugins(marketplacePath) {
 
   for (const plugin of marketplace.plugins) {
     const pluginName = plugin.name;
-    const pluginPath = path.dirname(plugin.source);
+    const pluginPath = plugin.source.replace(/^\.\//, ''); // Remove leading ./
 
     // Get latest tag for this plugin
     const lastTag = getLatestTag(pluginName) || getLatestTag(); // Fallback to any tag

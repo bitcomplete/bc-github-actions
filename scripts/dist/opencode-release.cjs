@@ -162,7 +162,7 @@ function detectChangedPlugins(marketplacePath) {
   const changedPlugins = [];
   for (const plugin of marketplace.plugins) {
     const pluginName = plugin.name;
-    const pluginPath = path.dirname(plugin.source);
+    const pluginPath = plugin.source.replace(/^\.\//, "");
     const lastTag = getLatestTag(pluginName) || getLatestTag();
     if (!lastTag) {
       console.log(`No previous releases found for ${pluginName}, skipping`);
