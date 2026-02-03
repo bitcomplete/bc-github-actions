@@ -103,3 +103,4 @@ We use semantic versioning with floating major tags:
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
+
