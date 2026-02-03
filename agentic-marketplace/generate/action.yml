@@ -18,6 +18,14 @@ inputs:
     description: 'Preview changes without committing'
     required: false
     default: 'false'
+  create-opencode-release:
+    description: 'Create OpenCode-compatible plugin releases'
+    required: false
+    default: 'false'
+  release-version:
+    description: 'Version for releases (default: YYYY.MM.DD)'
+    required: false
+    default: ''
 
 outputs:
   pr-number:
@@ -26,6 +34,9 @@ outputs:
   pr-url:
     description: 'Pull request URL if created'
     value: ${{ steps.create-pr.outputs.pull-request-url }}
+  releases-created:
+    description: 'Number of OpenCode releases created'
+    value: ${{ steps.opencode-release.outputs.count }}
 
 runs:
   using: 'composite'
@@ -95,6 +106,29 @@ runs:
         else
           echo "No PR created (no changes detected)"
         fi
+
+    - name: Create OpenCode Releases
+      id: opencode-release
+      if: ${{ inputs.create-opencode-release == 'true' && inputs.dry-run != 'true' }}
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        RELEASE_VERSION: ${{ inputs.release-version }}
+      run: |
+        set -e
+
+        # Use bundled script from this action
+        SCRIPT_PATH="${GITHUB_ACTION_PATH}/../../scripts/dist/opencode-release.cjs"
+
+        if [ ! -f "$SCRIPT_PATH" ]; then
+          echo "ERROR: Bundled script not found at $SCRIPT_PATH" >&2
+          exit 1
+        fi
+
+        echo "Creating OpenCode releases..."
+        node "$SCRIPT_PATH" opencode-release
+
+        echo "✓ Release creation complete"
 
 branding:
   icon: 'file-text'
