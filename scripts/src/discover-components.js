@@ -93,6 +93,7 @@ function loadConfig() {
     discovery: {
       excludeDirs: ['.git', 'node_modules', '.github', '.claude', 'templates', 'test-components'],
       excludePatterns: ['**/template/**', '**/*template*/**'],
+      pluginCategories: [],
       maxDepth: 10,
       skillFilename: 'SKILL.md',
       commandsDir: 'commands',
@@ -1065,54 +1066,132 @@ function findAssociatedJson(componentPath, jsonFiles) {
 }
 
 /**
+ * Extracts valid category directory names from pluginCategories config globs.
+ * e.g. ["code/**", "analysis/**"] → ["code", "analysis"]
+ * Falls back to hardcoded defaults when not set.
+ * @param {Object} config - Configuration object
+ * @returns {string[]} Array of category directory names
+ */
+function getCategoryNames(config) {
+  const defaultCategories = ['code', 'analysis', 'communication', 'documents'];
+  const globs = config.discovery.pluginCategories;
+
+  if (!globs || globs.length === 0) {
+    return defaultCategories;
+  }
+
+  return globs.map(glob => glob.split('/')[0]).filter(Boolean);
+}
+
+/**
+ * Groups discovered components into plugins by deriving plugin identity from paths.
+ * Pure data transformation — no filesystem access.
+ *
+ * For each component path, extracts category/plugin-name from its path relative to rootDir.
+ * Components whose paths don't match category/plugin-name/... are returned as orphans.
+ *
+ * @param {Object} components - Output of discoverAllComponents()
+ * @param {string} rootDir - Root directory (for computing relative paths)
+ * @param {Object} config - Configuration object
+ * @returns {{ plugins: Array<Object>, orphanedPaths: string[] }}
+ */
+function groupIntoPlugins(components, rootDir, config) {
+  const absoluteRoot = path.resolve(rootDir);
+  const validCategories = getCategoryNames(config);
+  const pluginMap = new Map(); // key: "category/plugin-name"
+  const orphanedPaths = [];
+
+  // All component paths to process: skills (dirs), commands (files), agents (files)
+  const allPaths = [
+    ...components.skills.map(p => ({ absPath: p, type: 'skill' })),
+    ...components.commands.map(p => ({ absPath: p, type: 'command' })),
+    ...components.agents.map(p => ({ absPath: p, type: 'agent' }))
+  ];
+
+  for (const { absPath, type } of allPaths) {
+    const relPath = path.relative(absoluteRoot, absPath);
+    const parts = relPath.split(path.sep);
+
+    // Need at least category/plugin-name
+    if (parts.length < 2) {
+      orphanedPaths.push(relPath);
+      continue;
+    }
+
+    const category = parts[0];
+    const pluginName = parts[1];
+
+    if (!validCategories.includes(category)) {
+      orphanedPaths.push(relPath);
+      continue;
+    }
+
+    const key = `${category}/${pluginName}`;
+    if (!pluginMap.has(key)) {
+      pluginMap.set(key, {
+        name: pluginName,
+        category,
+        path: path.join(absoluteRoot, category, pluginName),
+        source: `./${category}/${pluginName}`,
+        components: {
+          skills: [],
+          commands: [],
+          agents: [],
+          hooks: null,
+          mcpServers: null,
+          hooksFiles: [],
+          mcpFiles: [],
+          errors: []
+        }
+      });
+    }
+
+    const plugin = pluginMap.get(key);
+    if (type === 'skill') {
+      plugin.components.skills.push(absPath);
+    } else if (type === 'command') {
+      plugin.components.commands.push(absPath);
+    } else if (type === 'agent') {
+      plugin.components.agents.push(absPath);
+    }
+  }
+
+  // Associate hooks and MCP files with plugins by directory proximity
+  for (const plugin of pluginMap.values()) {
+    const associatedHooks = (components.hooksFiles || []).filter(
+      file => file.path.startsWith(plugin.path + path.sep)
+    );
+    if (associatedHooks.length > 0) {
+      plugin.components.hooks = mergeHooks(associatedHooks);
+      plugin.components.hooksFiles = associatedHooks;
+    }
+
+    const associatedMcp = (components.mcpFiles || []).filter(
+      file => file.path.startsWith(plugin.path + path.sep)
+    );
+    if (associatedMcp.length > 0) {
+      const mcpResult = mergeMcpServers(associatedMcp);
+      plugin.components.mcpServers = mcpResult.servers;
+      plugin.components.mcpFiles = associatedMcp;
+    }
+  }
+
+  return {
+    plugins: Array.from(pluginMap.values()),
+    orphanedPaths
+  };
+}
+
+/**
  * Discovers plugins in two-level hierarchy: category/plugin-name/
- * A directory is considered a plugin if it contains agents/, commands/, or skills/ subdirectories.
+ * Uses discoverAllComponents() for a single traversal, then groups by path.
  * @param {string} rootDir - Root directory to start discovery
  * @param {Object} config - Configuration object
  * @returns {Array<{name: string, category: string, path: string, source: string, components: Object}>} Array of plugin metadata
  */
 function discoverPlugins(rootDir, config) {
-  const categories = ['code', 'analysis', 'communication', 'documents'];
-  const plugins = [];
-  const absoluteRoot = path.resolve(rootDir);
-
-  function isPluginDirectory(dir) {
-    return ['agents', 'commands', 'skills'].some(sub =>
-      fs.existsSync(path.join(dir, sub))
-    );
-  }
-
-  for (const category of categories) {
-    const categoryPath = path.join(absoluteRoot, category);
-    if (!fs.existsSync(categoryPath)) continue;
-
-    let entries;
-    try {
-      entries = fs.readdirSync(categoryPath, { withFileTypes: true });
-    } catch (err) {
-      console.warn(`Cannot read category directory ${categoryPath}: ${err.message}`);
-      continue;
-    }
-
-    for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
-
-      const pluginPath = path.join(categoryPath, entry.name);
-      if (isPluginDirectory(pluginPath)) {
-        // Discover components within this plugin
-        const pluginComponents = discoverAllComponents(pluginPath, config);
-
-        plugins.push({
-          name: entry.name,
-          category,
-          path: pluginPath,
-          source: `./${category}/${entry.name}`,
-          components: pluginComponents
-        });
-      }
-    }
-  }
-
+  const components = discoverAllComponents(rootDir, config);
+  const { plugins } = groupIntoPlugins(components, rootDir, config);
   return plugins;
 }
 
@@ -1247,6 +1326,8 @@ module.exports = {
   validateAgent,
   findDuplicateNames,
   discoverAllComponents,
+  getCategoryNames,
+  groupIntoPlugins,
   discoverPlugins,
   generatePluginJson,
   generateMarketplace,
@@ -1380,7 +1461,14 @@ if (require.main === module) {
     }
   } else if (command === 'generate') {
     const config = loadConfig();
-    const plugins = discoverPlugins('.', config);
+    const components = discoverAllComponents('.', config);
+    const { plugins, orphanedPaths } = groupIntoPlugins(components, '.', config);
+
+    if (orphanedPaths.length > 0) {
+      console.warn('\n[WARN] Components not mapped to any plugin (not in a recognized category/plugin-name path):');
+      orphanedPaths.forEach(p => console.warn(`  - ${p}`));
+      console.warn('');
+    }
 
     // Write individual plugin.json files
     writePluginJsonFiles(plugins, config);

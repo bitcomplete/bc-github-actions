@@ -7278,6 +7278,7 @@ function loadConfig() {
     discovery: {
       excludeDirs: [".git", "node_modules", ".github", ".claude", "templates", "test-components"],
       excludePatterns: ["**/template/**", "**/*template*/**"],
+      pluginCategories: [],
       maxDepth: 10,
       skillFilename: "SKILL.md",
       commandsDir: "commands",
@@ -7828,42 +7829,90 @@ function discoverAllComponents(rootDir, config) {
     errors: allErrors
   };
 }
-function discoverPlugins(rootDir, config) {
-  const categories = ["code", "analysis", "communication", "documents"];
-  const plugins = [];
+function getCategoryNames(config) {
+  const defaultCategories = ["code", "analysis", "communication", "documents"];
+  const globs = config.discovery.pluginCategories;
+  if (!globs || globs.length === 0) {
+    return defaultCategories;
+  }
+  return globs.map((glob) => glob.split("/")[0]).filter(Boolean);
+}
+function groupIntoPlugins(components, rootDir, config) {
   const absoluteRoot = path.resolve(rootDir);
-  function isPluginDirectory(dir) {
-    return ["agents", "commands", "skills"].some(
-      (sub) => fs.existsSync(path.join(dir, sub))
+  const validCategories = getCategoryNames(config);
+  const pluginMap = /* @__PURE__ */ new Map();
+  const orphanedPaths = [];
+  const allPaths = [
+    ...components.skills.map((p) => ({ absPath: p, type: "skill" })),
+    ...components.commands.map((p) => ({ absPath: p, type: "command" })),
+    ...components.agents.map((p) => ({ absPath: p, type: "agent" }))
+  ];
+  for (const { absPath, type } of allPaths) {
+    const relPath = path.relative(absoluteRoot, absPath);
+    const parts = relPath.split(path.sep);
+    if (parts.length < 2) {
+      orphanedPaths.push(relPath);
+      continue;
+    }
+    const category = parts[0];
+    const pluginName = parts[1];
+    if (!validCategories.includes(category)) {
+      orphanedPaths.push(relPath);
+      continue;
+    }
+    const key = `${category}/${pluginName}`;
+    if (!pluginMap.has(key)) {
+      pluginMap.set(key, {
+        name: pluginName,
+        category,
+        path: path.join(absoluteRoot, category, pluginName),
+        source: `./${category}/${pluginName}`,
+        components: {
+          skills: [],
+          commands: [],
+          agents: [],
+          hooks: null,
+          mcpServers: null,
+          hooksFiles: [],
+          mcpFiles: [],
+          errors: []
+        }
+      });
+    }
+    const plugin = pluginMap.get(key);
+    if (type === "skill") {
+      plugin.components.skills.push(absPath);
+    } else if (type === "command") {
+      plugin.components.commands.push(absPath);
+    } else if (type === "agent") {
+      plugin.components.agents.push(absPath);
+    }
+  }
+  for (const plugin of pluginMap.values()) {
+    const associatedHooks = (components.hooksFiles || []).filter(
+      (file) => file.path.startsWith(plugin.path + path.sep)
     );
-  }
-  for (const category of categories) {
-    const categoryPath = path.join(absoluteRoot, category);
-    if (!fs.existsSync(categoryPath))
-      continue;
-    let entries;
-    try {
-      entries = fs.readdirSync(categoryPath, { withFileTypes: true });
-    } catch (err) {
-      console.warn(`Cannot read category directory ${categoryPath}: ${err.message}`);
-      continue;
+    if (associatedHooks.length > 0) {
+      plugin.components.hooks = mergeHooks(associatedHooks);
+      plugin.components.hooksFiles = associatedHooks;
     }
-    for (const entry of entries) {
-      if (!entry.isDirectory())
-        continue;
-      const pluginPath = path.join(categoryPath, entry.name);
-      if (isPluginDirectory(pluginPath)) {
-        const pluginComponents = discoverAllComponents(pluginPath, config);
-        plugins.push({
-          name: entry.name,
-          category,
-          path: pluginPath,
-          source: `./${category}/${entry.name}`,
-          components: pluginComponents
-        });
-      }
+    const associatedMcp = (components.mcpFiles || []).filter(
+      (file) => file.path.startsWith(plugin.path + path.sep)
+    );
+    if (associatedMcp.length > 0) {
+      const mcpResult = mergeMcpServers(associatedMcp);
+      plugin.components.mcpServers = mcpResult.servers;
+      plugin.components.mcpFiles = associatedMcp;
     }
   }
+  return {
+    plugins: Array.from(pluginMap.values()),
+    orphanedPaths
+  };
+}
+function discoverPlugins(rootDir, config) {
+  const components = discoverAllComponents(rootDir, config);
+  const { plugins } = groupIntoPlugins(components, rootDir, config);
   return plugins;
 }
 function generatePluginJson(plugin, config) {
@@ -7961,6 +8010,8 @@ module.exports = {
   validateAgent,
   findDuplicateNames,
   discoverAllComponents,
+  getCategoryNames,
+  groupIntoPlugins,
   discoverPlugins,
   generatePluginJson,
   generateMarketplace,
@@ -8078,7 +8129,13 @@ Found ${components.agents.length} agent(s) to validate
     }
   } else if (command === "generate") {
     const config = loadConfig();
-    const plugins = discoverPlugins(".", config);
+    const components = discoverAllComponents(".", config);
+    const { plugins, orphanedPaths } = groupIntoPlugins(components, ".", config);
+    if (orphanedPaths.length > 0) {
+      console.warn("\n[WARN] Components not mapped to any plugin (not in a recognized category/plugin-name path):");
+      orphanedPaths.forEach((p) => console.warn(`  - ${p}`));
+      console.warn("");
+    }
     writePluginJsonFiles(plugins, config);
     const marketplace = generateMarketplace(plugins, config);
     const marketplacePath = path.join(".claude-plugin", "marketplace.json");
