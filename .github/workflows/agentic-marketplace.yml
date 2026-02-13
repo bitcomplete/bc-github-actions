@@ -75,7 +75,7 @@ jobs:
 
   publish:
     needs: generate
-    if: ${{ !inputs.dry-run }}
+    if: ${{ !inputs.dry-run && github.event_name == 'push' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
