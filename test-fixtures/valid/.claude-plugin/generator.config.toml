@@ -9,7 +9,7 @@ name = "Test Owner"
 email = "test@example.com"
 
 [discovery]
-pluginCategories = ["analysis/**"]
+pluginCategories = ["analysis/**", "code/**"]
 excludeDirs = [".git", "node_modules", ".github", ".claude", "templates", "test-components", "docs"]
 excludePatterns = ["**/template/**", "**/*template*/**"]
 maxDepth = 10
