@@ -24,7 +24,10 @@ on:
         type: string
     secrets:
       token:
-        description: 'GitHub token for PR creation'
+        description: 'GitHub token for read-only operations'
+        required: true
+      pat:
+        description: 'Personal access token for PR creation (PRs created with GITHUB_TOKEN do not trigger workflows)'
         required: true
 
 jobs:
@@ -95,7 +98,7 @@ jobs:
       - name: Publish marketplace changes
         uses: bitcomplete/bc-github-actions/agentic-marketplace/publish@v1
         with:
-          github-token: ${{ secrets.token }}
+          github-token: ${{ secrets.pat }}
           auto-merge: ${{ inputs.auto-merge }}
           create-opencode-release: ${{ inputs.create-opencode-release }}
           release-version: ${{ inputs.release-version }}
