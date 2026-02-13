@@ -11,7 +11,7 @@ on:
         default: true
         type: boolean
       dry-run:
-        description: 'Preview changes without committing'
+        description: 'Skip publish step (PR creation, auto-merge, releases)'
         default: false
         type: boolean
       create-opencode-release:
@@ -61,6 +61,20 @@ jobs:
 
   generate:
     needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Generate marketplace files
+        uses: bitcomplete/bc-github-actions/agentic-marketplace/generate@v1
+        with:
+          config-path: ${{ inputs.config-path }}
+
+  publish:
+    needs: generate
     if: ${{ !inputs.dry-run }}
     runs-on: ubuntu-latest
     permissions:
@@ -77,6 +91,10 @@ jobs:
         uses: bitcomplete/bc-github-actions/agentic-marketplace/generate@v1
         with:
           config-path: ${{ inputs.config-path }}
+
+      - name: Publish marketplace changes
+        uses: bitcomplete/bc-github-actions/agentic-marketplace/publish@v1
+        with:
           github-token: ${{ secrets.token }}
           auto-merge: ${{ inputs.auto-merge }}
           create-opencode-release: ${{ inputs.create-opencode-release }}
