@@ -1,6 +1,6 @@
 {
   "name": "bc-github-actions",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Reusable GitHub Actions workflows for Claude Code plugin marketplaces",
   "private": false,
   "scripts": {
