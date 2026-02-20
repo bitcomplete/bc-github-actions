@@ -42,20 +42,47 @@ runs:
 
         echo "Validating components..."
 
-        if node "$SCRIPT_PATH" validate; then
+        VALIDATE_OUTPUT=$(node "$SCRIPT_PATH" validate 2>&1) && VALID=true || VALID=false
+
+        # Echo output to logs as before
+        echo "$VALIDATE_OUTPUT"
+
+        if [ "$VALID" = "true" ]; then
           echo "valid=true" >> $GITHUB_OUTPUT
           echo "errors=[]" >> $GITHUB_OUTPUT
           echo "✓ All components valid"
-          exit 0
         else
           echo "valid=false" >> $GITHUB_OUTPUT
           echo "✗ Validation failed"
+        fi
 
-          if [ "$FAIL_ON_ERROR" = "true" ]; then
-            exit 1
+        # Write job summary
+        if [ -n "$GITHUB_STEP_SUMMARY" ]; then
+          if [ "$VALID" = "true" ]; then
+            ICON="✅"
+            STATUS="passed"
           else
-            exit 0
+            ICON="❌"
+            STATUS="failed"
           fi
+
+          {
+            echo "### Validate"
+            echo ""
+            echo "$ICON Validation **$STATUS**"
+            echo ""
+            echo "<details><summary>Full output</summary>"
+            echo ""
+            echo '```'
+            echo "$VALIDATE_OUTPUT"
+            echo '```'
+            echo ""
+            echo "</details>"
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+        if [ "$VALID" = "false" ] && [ "$FAIL_ON_ERROR" = "true" ]; then
+          exit 1
         fi
 
 branding:

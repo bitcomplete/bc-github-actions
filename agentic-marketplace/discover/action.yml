@@ -47,6 +47,39 @@ runs:
         echo "$OUTPUT" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
 
+        # Write job summary
+        if [ -n "$GITHUB_STEP_SUMMARY" ]; then
+          SKILLS=$(node -e "console.log(JSON.parse(process.argv[1]).skills.length)" "$OUTPUT")
+          COMMANDS=$(node -e "console.log(JSON.parse(process.argv[1]).commands.length)" "$OUTPUT")
+          AGENTS=$(node -e "console.log(JSON.parse(process.argv[1]).agents.length)" "$OUTPUT")
+          SKIPPED=$(node -e "console.log(JSON.parse(process.argv[1]).skipped?.length ?? 0)" "$OUTPUT")
+          SKIPPED_LIST=$(node -e "
+            const s = JSON.parse(process.argv[1]).skipped || [];
+            s.forEach(p => console.log('- \`' + p + '\`'));
+          " "$OUTPUT")
+
+          {
+            echo "### Discover"
+            echo ""
+            echo "| Component | Count |"
+            echo "|-----------|------:|"
+            echo "| Skills | $SKILLS |"
+            echo "| Commands | $COMMANDS |"
+            echo "| Agents | $AGENTS |"
+            if [ "$SKIPPED" -gt 0 ]; then
+              echo ""
+              echo "> [!WARNING]"
+              echo "> $SKIPPED file(s) skipped (no frontmatter)"
+              echo ""
+              echo "<details><summary>Skipped files</summary>"
+              echo ""
+              echo "$SKIPPED_LIST"
+              echo ""
+              echo "</details>"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
         echo "✓ Discovery complete"
 
 branding:

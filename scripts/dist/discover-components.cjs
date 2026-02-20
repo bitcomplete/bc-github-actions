@@ -7417,6 +7417,7 @@ function discoverMarkdownComponents(rootDir, config) {
   const commands = [];
   const agents = [];
   const errors = [];
+  const skipped = [];
   const absoluteRoot = path.resolve(rootDir);
   function shouldExcludePath(relPath) {
     const pathParts = relPath.split(path.sep);
@@ -7467,7 +7468,9 @@ function discoverMarkdownComponents(rootDir, config) {
             commands.push(classified.path);
           } else if (classified.type === "agent") {
             agents.push(classified.path);
-          } else if (!classified.skipped) {
+          } else if (classified.skipped) {
+            skipped.push(fullPath);
+          } else {
             errors.push({ path: fullPath, error: classified.error });
           }
         }
@@ -7475,7 +7478,7 @@ function discoverMarkdownComponents(rootDir, config) {
     }
   }
   walk(absoluteRoot, 0);
-  return { skills, commands, agents, errors };
+  return { skills, commands, agents, errors, skipped };
 }
 function discoverHooksFiles(rootDir, config) {
   const { excludeDirs, excludePatterns, maxDepth } = config.discovery;
@@ -7833,7 +7836,8 @@ function discoverAllComponents(rootDir, config) {
     mcpServers: mcpResult.servers,
     hooksFiles,
     mcpFiles,
-    errors: allErrors
+    errors: allErrors,
+    skipped: mdComponents.skipped
   };
 }
 function getCategoryNames(config) {
