@@ -12,6 +12,7 @@ const assert = require('assert');
 const {
   loadConfig,
   classifyComponent,
+  discoverMarkdownComponents,
   discoverAllComponents,
   getCategoryNames,
   groupIntoPlugins,
@@ -389,6 +390,59 @@ test('.md with explicit type in frontmatter takes priority', () => {
     fs.writeFileSync(filePath, '---\ntype: agent\nname: test\n---\nContent\n');
     const result = classifyComponent(filePath, tmpDir, defaultConfig);
     assert.strictEqual(result.type, 'agent');
+  });
+});
+
+// --- skipped array ---
+
+console.log('\nskipped array');
+
+// Full config needed for discovery functions (defaultConfig lacks excludeDirs etc.)
+const discoveryConfig = {
+  discovery: {
+    skillFilename: 'SKILL.md',
+    commandsDir: 'commands',
+    agentsDir: 'agents',
+    excludeDirs: ['.git', 'node_modules'],
+    excludePatterns: [],
+    maxDepth: 10
+  }
+};
+
+test('discoverMarkdownComponents returns skipped array for frontmatterless files', () => {
+  withTempDir((tmpDir) => {
+    // Create a .md file with no frontmatter (not in commands/agents/skills, not SKILL.md)
+    fs.writeFileSync(path.join(tmpDir, 'notes.md'), '# Just notes\n\nNo frontmatter.\n');
+    // Create a valid skill for contrast
+    fs.writeFileSync(path.join(tmpDir, 'SKILL.md'), '---\nname: test-skill\ndescription: A test\n---\nContent\n');
+
+    const result = discoverMarkdownComponents(tmpDir, discoveryConfig);
+    assert(Array.isArray(result.skipped), 'skipped should be an array');
+    assert.strictEqual(result.skipped.length, 1, 'should have 1 skipped file');
+    assert(result.skipped[0].endsWith('notes.md'), 'skipped file should be notes.md');
+    assert.strictEqual(result.skills.length, 1, 'should still find the skill');
+  });
+});
+
+test('discoverAllComponents propagates skipped array', () => {
+  withTempDir((tmpDir) => {
+    // Create a .md file with no frontmatter
+    fs.writeFileSync(path.join(tmpDir, 'planning.md'), '# Planning doc\n\nNo frontmatter.\n');
+
+    const result = discoverAllComponents(tmpDir, discoveryConfig);
+    assert(Array.isArray(result.skipped), 'skipped should be an array');
+    assert.strictEqual(result.skipped.length, 1, 'should have 1 skipped file');
+    assert(result.skipped[0].endsWith('planning.md'), 'skipped file should be planning.md');
+  });
+});
+
+test('discoverMarkdownComponents returns empty skipped array when all files have frontmatter', () => {
+  withTempDir((tmpDir) => {
+    fs.writeFileSync(path.join(tmpDir, 'SKILL.md'), '---\nname: test-skill\ndescription: A test\n---\nContent\n');
+
+    const result = discoverMarkdownComponents(tmpDir, discoveryConfig);
+    assert(Array.isArray(result.skipped), 'skipped should be an array');
+    assert.strictEqual(result.skipped.length, 0, 'should have no skipped files');
   });
 });
 

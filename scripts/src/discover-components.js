@@ -156,7 +156,7 @@ function loadConfig() {
   }
 
   // No config file found - use defaults
-  console.log('No generator.config.toml or .json found, using defaults');
+  console.error('No generator.config.toml or .json found, using defaults');
   return defaults;
 }
 
@@ -293,6 +293,7 @@ function discoverMarkdownComponents(rootDir, config) {
   const commands = [];
   const agents = [];
   const errors = [];
+  const skipped = [];
   const absoluteRoot = path.resolve(rootDir);
 
   function shouldExcludePath(relPath) {
@@ -354,7 +355,9 @@ function discoverMarkdownComponents(rootDir, config) {
             commands.push(classified.path);
           } else if (classified.type === 'agent') {
             agents.push(classified.path);
-          } else if (!classified.skipped) {
+          } else if (classified.skipped) {
+            skipped.push(fullPath);
+          } else {
             // Unclassified component with frontmatter - add to errors
             errors.push({ path: fullPath, error: classified.error });
           }
@@ -364,7 +367,7 @@ function discoverMarkdownComponents(rootDir, config) {
   }
 
   walk(absoluteRoot, 0);
-  return { skills, commands, agents, errors };
+  return { skills, commands, agents, errors, skipped };
 }
 
 /**
@@ -1031,7 +1034,8 @@ function discoverAllComponents(rootDir, config) {
     mcpServers: mcpResult.servers,
     hooksFiles,
     mcpFiles,
-    errors: allErrors
+    errors: allErrors,
+    skipped: mdComponents.skipped
   };
 }
 
