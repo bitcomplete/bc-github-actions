@@ -604,7 +604,7 @@ function validateComponent(componentPath, config, options) {
     return { valid: false, errors };
   }
 
-  const { name, description } = parsed.data;
+  const { name, description, author, category } = parsed.data;
 
   // Validate required fields
   if (!name) {
@@ -650,7 +650,9 @@ function validateComponent(componentPath, config, options) {
     valid: errors.length === 0,
     errors,
     name,
-    description
+    description,
+    author,
+    category
   };
 }
 
@@ -1213,41 +1215,52 @@ function discoverPlugins(rootDir, config) {
 }
 
 /**
+ * Extracts name, description, author, and category from a plugin's components.
+ * Validates each component type and takes metadata from the first valid one found.
+ * @param {Object} plugin - Plugin metadata with components
+ * @param {Object} config - Configuration object
+ * @returns {{ name: string, description: string, author?: Object, category?: string }}
+ */
+function extractPluginMetadata(plugin, config) {
+  const { components } = plugin;
+  let pluginName = plugin.name;
+  let pluginDescription = `${plugin.name} plugin`;
+  let pluginAuthor;
+  let pluginCategory;
+
+  // Validate all component types, take metadata from first valid one
+  const componentSources = [
+    ...(components.agents || []).map(p => validateAgent(p, config)),
+    ...(components.commands || []).map(p => validateCommand(p, config)),
+    ...(components.skills || []).map(p => validateSkill(p, config))
+  ];
+
+  for (const validation of componentSources) {
+    if (!validation.valid) continue;
+    if (!pluginDescription || pluginDescription === `${plugin.name} plugin`) {
+      if (validation.description) pluginDescription = validation.description;
+    }
+    if (!pluginAuthor && validation.author) pluginAuthor = validation.author;
+    if (!pluginCategory && validation.category) pluginCategory = validation.category;
+  }
+
+  return { name: pluginName, description: pluginDescription, author: pluginAuthor, category: pluginCategory };
+}
+
+/**
  * Generates individual plugin.json for a plugin directory.
  * @param {Object} plugin - Plugin metadata
  * @param {Object} config - Configuration object
  * @returns {Object} Plugin manifest object
  */
 function generatePluginJson(plugin, config) {
-  const { components } = plugin;
   const { owner } = config.marketplace;
-
-  // Get metadata from the first valid component
-  let pluginName = plugin.name;
-  let pluginDescription = `${plugin.name} plugin`;
-
-  // Try to extract description from components
-  if (components.agents && components.agents.length > 0) {
-    const validation = validateAgent(components.agents[0], config);
-    if (validation.valid && validation.description) {
-      pluginDescription = validation.description;
-    }
-  } else if (components.commands && components.commands.length > 0) {
-    const validation = validateCommand(components.commands[0], config);
-    if (validation.valid && validation.description) {
-      pluginDescription = validation.description;
-    }
-  } else if (components.skills && components.skills.length > 0) {
-    const validation = validateSkill(components.skills[0], config);
-    if (validation.valid && validation.description) {
-      pluginDescription = validation.description;
-    }
-  }
+  const metadata = extractPluginMetadata(plugin, config);
 
   return {
-    name: pluginName,
-    description: pluginDescription,
-    author: owner
+    name: metadata.name,
+    description: metadata.description,
+    author: metadata.author || owner
   };
 }
 
@@ -1263,36 +1276,14 @@ function generateMarketplace(plugins, config) {
   const marketplacePlugins = [];
 
   for (const plugin of plugins) {
-    const { components } = plugin;
-
-    // Get metadata from the first valid component
-    let pluginName = plugin.name;
-    let pluginDescription = `${plugin.name} plugin`;
-
-    // Try to extract description from components
-    if (components.agents && components.agents.length > 0) {
-      const validation = validateAgent(components.agents[0], config);
-      if (validation.valid && validation.description) {
-        pluginDescription = validation.description;
-      }
-    } else if (components.commands && components.commands.length > 0) {
-      const validation = validateCommand(components.commands[0], config);
-      if (validation.valid && validation.description) {
-        pluginDescription = validation.description;
-      }
-    } else if (components.skills && components.skills.length > 0) {
-      const validation = validateSkill(components.skills[0], config);
-      if (validation.valid && validation.description) {
-        pluginDescription = validation.description;
-      }
-    }
+    const metadata = extractPluginMetadata(plugin, config);
 
     marketplacePlugins.push({
-      name: pluginName,
-      description: pluginDescription,
+      name: metadata.name,
+      description: metadata.description,
       source: plugin.source,
-      author: owner,
-      category: plugin.category === 'code' || plugin.category === 'analysis' ? 'development' : 'productivity'
+      author: metadata.author || owner,
+      category: metadata.category || (plugin.category === 'code' || plugin.category === 'analysis' ? 'development' : 'productivity')
     });
   }
 
@@ -1374,6 +1365,7 @@ module.exports = {
   getCategoryNames,
   groupIntoPlugins,
   discoverPlugins,
+  extractPluginMetadata,
   generatePluginJson,
   generateMarketplace,
   writePluginJsonFiles

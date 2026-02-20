@@ -7646,7 +7646,7 @@ function validateComponent(componentPath, config, options2) {
     errors.push(`Invalid frontmatter in ${filePath}: ${err.message}`);
     return { valid: false, errors };
   }
-  const { name, description } = parsed.data;
+  const { name, description, author, category } = parsed.data;
   if (!name) {
     errors.push(`Missing required field 'name' in ${filePath}`);
   }
@@ -7683,7 +7683,9 @@ function validateComponent(componentPath, config, options2) {
     valid: errors.length === 0,
     errors,
     name,
-    description
+    description,
+    author,
+    category
   };
 }
 function validateSkill(skillPath, config) {
@@ -7926,62 +7928,51 @@ function discoverPlugins(rootDir, config) {
   const { plugins } = groupIntoPlugins(components, rootDir, config);
   return plugins;
 }
-function generatePluginJson(plugin, config) {
+function extractPluginMetadata(plugin, config) {
   const { components } = plugin;
-  const { owner } = config.marketplace;
   let pluginName = plugin.name;
   let pluginDescription = `${plugin.name} plugin`;
-  if (components.agents && components.agents.length > 0) {
-    const validation = validateAgent(components.agents[0], config);
-    if (validation.valid && validation.description) {
-      pluginDescription = validation.description;
+  let pluginAuthor;
+  let pluginCategory;
+  const componentSources = [
+    ...(components.agents || []).map((p) => validateAgent(p, config)),
+    ...(components.commands || []).map((p) => validateCommand(p, config)),
+    ...(components.skills || []).map((p) => validateSkill(p, config))
+  ];
+  for (const validation of componentSources) {
+    if (!validation.valid)
+      continue;
+    if (!pluginDescription || pluginDescription === `${plugin.name} plugin`) {
+      if (validation.description)
+        pluginDescription = validation.description;
     }
-  } else if (components.commands && components.commands.length > 0) {
-    const validation = validateCommand(components.commands[0], config);
-    if (validation.valid && validation.description) {
-      pluginDescription = validation.description;
-    }
-  } else if (components.skills && components.skills.length > 0) {
-    const validation = validateSkill(components.skills[0], config);
-    if (validation.valid && validation.description) {
-      pluginDescription = validation.description;
-    }
+    if (!pluginAuthor && validation.author)
+      pluginAuthor = validation.author;
+    if (!pluginCategory && validation.category)
+      pluginCategory = validation.category;
   }
+  return { name: pluginName, description: pluginDescription, author: pluginAuthor, category: pluginCategory };
+}
+function generatePluginJson(plugin, config) {
+  const { owner } = config.marketplace;
+  const metadata = extractPluginMetadata(plugin, config);
   return {
-    name: pluginName,
-    description: pluginDescription,
-    author: owner
+    name: metadata.name,
+    description: metadata.description,
+    author: metadata.author || owner
   };
 }
 function generateMarketplace(plugins, config) {
   const { name, owner, description } = config.marketplace;
   const marketplacePlugins = [];
   for (const plugin of plugins) {
-    const { components } = plugin;
-    let pluginName = plugin.name;
-    let pluginDescription = `${plugin.name} plugin`;
-    if (components.agents && components.agents.length > 0) {
-      const validation = validateAgent(components.agents[0], config);
-      if (validation.valid && validation.description) {
-        pluginDescription = validation.description;
-      }
-    } else if (components.commands && components.commands.length > 0) {
-      const validation = validateCommand(components.commands[0], config);
-      if (validation.valid && validation.description) {
-        pluginDescription = validation.description;
-      }
-    } else if (components.skills && components.skills.length > 0) {
-      const validation = validateSkill(components.skills[0], config);
-      if (validation.valid && validation.description) {
-        pluginDescription = validation.description;
-      }
-    }
+    const metadata = extractPluginMetadata(plugin, config);
     marketplacePlugins.push({
-      name: pluginName,
-      description: pluginDescription,
+      name: metadata.name,
+      description: metadata.description,
       source: plugin.source,
-      author: owner,
-      category: plugin.category === "code" || plugin.category === "analysis" ? "development" : "productivity"
+      author: metadata.author || owner,
+      category: metadata.category || (plugin.category === "code" || plugin.category === "analysis" ? "development" : "productivity")
     });
   }
   const marketplacePath = path.join(".claude-plugin", "marketplace.json");
@@ -8043,6 +8034,7 @@ module.exports = {
   getCategoryNames,
   groupIntoPlugins,
   discoverPlugins,
+  extractPluginMetadata,
   generatePluginJson,
   generateMarketplace,
   writePluginJsonFiles
