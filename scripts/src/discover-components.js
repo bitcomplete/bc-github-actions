@@ -236,7 +236,14 @@ function classifyComponent(filePath, rootDir, config) {
     return { type: 'skill', path: path.dirname(filePath) };
   }
 
-  // 4. FIELD HEURISTICS
+  // 4. REQUIRE FRONTMATTER for remaining heuristics
+  // Files without frontmatter that didn't match by name or location
+  // are not components (e.g., reference docs, planning notes)
+  if (!frontmatter || Object.keys(frontmatter).length === 0) {
+    return { type: null, path: filePath, skipped: true };
+  }
+
+  // 5. FIELD HEURISTICS
   if (frontmatter) {
     const hasExamples = Array.isArray(frontmatter.examples);
     const hasVersion = typeof frontmatter.version === 'string';
@@ -252,7 +259,7 @@ function classifyComponent(filePath, rootDir, config) {
     }
   }
 
-  // 5. DIRECTORY STRUCTURE
+  // 6. DIRECTORY STRUCTURE
   const dirName = path.dirname(filePath);
   const baseName = path.basename(filePath, '.md');
 
@@ -261,7 +268,7 @@ function classifyComponent(filePath, rootDir, config) {
     return { type: 'skill', path: dirName };
   }
 
-  // 6. UNCLASSIFIED → ERROR
+  // 7. UNCLASSIFIED → ERROR
   const error = `Unable to classify component at '${relPath}'\n\n` +
     `To fix, add one of the following to your frontmatter:\n` +
     `  type: skill    # For instructional content with supporting files\n` +
@@ -347,8 +354,8 @@ function discoverMarkdownComponents(rootDir, config) {
             commands.push(classified.path);
           } else if (classified.type === 'agent') {
             agents.push(classified.path);
-          } else {
-            // Unclassified component - add to errors
+          } else if (!classified.skipped) {
+            // Unclassified component with frontmatter - add to errors
             errors.push({ path: fullPath, error: classified.error });
           }
         }
@@ -484,12 +491,18 @@ function discoverMcpFiles(rootDir, config) {
 function mergeHooks(hooksFiles) {
   if (hooksFiles.length === 0) return null;
 
-  // For now, just merge all hook arrays
-  // In the future, we could check for conflicts
   const merged = {};
 
   for (const { content } of hooksFiles) {
-    for (const [event, hooks] of Object.entries(content)) {
+    // Support nested format: { description: "...", hooks: { EventName: [...] } }
+    const hooksMap = (content.hooks && typeof content.hooks === 'object' && !Array.isArray(content.hooks))
+      ? content.hooks
+      : content;
+
+    for (const [event, hooks] of Object.entries(hooksMap)) {
+      if (!Array.isArray(hooks)) {
+        continue;
+      }
       if (!merged[event]) {
         merged[event] = [];
       }
@@ -497,7 +510,7 @@ function mergeHooks(hooksFiles) {
     }
   }
 
-  return merged;
+  return Object.keys(merged).length > 0 ? merged : null;
 }
 
 /**
