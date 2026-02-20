@@ -59,7 +59,8 @@ runs:
               echo "📦 **Updated** \`$MARKETPLACE_FILE\`"
               echo ""
               echo '```diff'
-              diff -u "$BEFORE_FILE" "$MARKETPLACE_FILE" | tail -n +3
+              # diff exits 1 when files differ; neutralize before the pipe
+              { diff -u "$BEFORE_FILE" "$MARKETPLACE_FILE" || true; } | tail -n +3
               echo '```'
             fi
           } >> "$GITHUB_STEP_SUMMARY"
