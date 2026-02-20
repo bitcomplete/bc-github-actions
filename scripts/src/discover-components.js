@@ -1296,12 +1296,40 @@ function generateMarketplace(plugins, config) {
     });
   }
 
+  // Stable ordering: preserve existing order, append new plugins at the end.
+  // This keeps diffs clean — only additions/removals, never reordering.
+  const marketplacePath = path.join('.claude-plugin', 'marketplace.json');
+  let existingOrder = [];
+  try {
+    const existing = JSON.parse(fs.readFileSync(marketplacePath, 'utf8'));
+    existingOrder = (existing.plugins || []).map(p => p.source);
+  } catch {
+    // No existing file or invalid JSON — all plugins are new
+  }
+
+  const existingSet = new Set(existingOrder);
+  const pluginsBySource = new Map(marketplacePlugins.map(p => [p.source, p]));
+
+  // Existing plugins in their original order (skip any that were removed)
+  const ordered = [];
+  for (const source of existingOrder) {
+    if (pluginsBySource.has(source)) {
+      ordered.push(pluginsBySource.get(source));
+      pluginsBySource.delete(source);
+    }
+  }
+
+  // New plugins appended at the end, sorted alphabetically among themselves
+  const newPlugins = Array.from(pluginsBySource.values());
+  newPlugins.sort((a, b) => a.source.localeCompare(b.source));
+  ordered.push(...newPlugins);
+
   return {
     "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
     name,
     description,
     owner,
-    plugins: marketplacePlugins
+    plugins: ordered
   };
 }
 

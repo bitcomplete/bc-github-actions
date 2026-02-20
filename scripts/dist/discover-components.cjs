@@ -7984,12 +7984,31 @@ function generateMarketplace(plugins, config) {
       category: plugin.category === "code" || plugin.category === "analysis" ? "development" : "productivity"
     });
   }
+  const marketplacePath = path.join(".claude-plugin", "marketplace.json");
+  let existingOrder = [];
+  try {
+    const existing = JSON.parse(fs.readFileSync(marketplacePath, "utf8"));
+    existingOrder = (existing.plugins || []).map((p) => p.source);
+  } catch {
+  }
+  const existingSet = new Set(existingOrder);
+  const pluginsBySource = new Map(marketplacePlugins.map((p) => [p.source, p]));
+  const ordered = [];
+  for (const source of existingOrder) {
+    if (pluginsBySource.has(source)) {
+      ordered.push(pluginsBySource.get(source));
+      pluginsBySource.delete(source);
+    }
+  }
+  const newPlugins = Array.from(pluginsBySource.values());
+  newPlugins.sort((a, b) => a.source.localeCompare(b.source));
+  ordered.push(...newPlugins);
   return {
     "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
     name,
     description,
     owner,
-    plugins: marketplacePlugins
+    plugins: ordered
   };
 }
 function writePluginJsonFiles(plugins, config) {
