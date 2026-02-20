@@ -18,6 +18,10 @@ const {
   groupIntoPlugins,
   discoverPlugins,
   validateSkill,
+  validateComponent,
+  extractPluginMetadata,
+  generatePluginJson,
+  generateMarketplace,
   mergeHooks
 } = require('../src/discover-components.js');
 
@@ -443,6 +447,126 @@ test('discoverMarkdownComponents returns empty skipped array when all files have
     const result = discoverMarkdownComponents(tmpDir, discoveryConfig);
     assert(Array.isArray(result.skipped), 'skipped should be an array');
     assert.strictEqual(result.skipped.length, 0, 'should have no skipped files');
+  });
+});
+
+// --- per-plugin author and category ---
+
+console.log('\nper-plugin author and category');
+
+const validationConfig = {
+  discovery: {
+    skillFilename: 'SKILL.md',
+    commandsDir: 'commands',
+    agentsDir: 'agents',
+    excludeDirs: ['.git', 'node_modules'],
+    excludePatterns: [],
+    maxDepth: 10
+  },
+  validation: {
+    nameMaxLength: 64,
+    descriptionMaxLength: 1024,
+    reservedWords: [],
+    namePattern: '^[a-z0-9]+(-[a-z0-9]+)*$'
+  }
+};
+
+test('validateComponent returns author and category from frontmatter', () => {
+  withTempDir((tmpDir) => {
+    fs.writeFileSync(path.join(tmpDir, 'SKILL.md'),
+      '---\nname: test-skill\ndescription: A test skill\nauthor:\n  name: Jane Doe\n  email: jane@example.com\ncategory: design\n---\nContent\n');
+    const result = validateComponent(path.join(tmpDir, 'SKILL.md'), validationConfig, { type: 'skill' });
+    assert.strictEqual(result.valid, true);
+    assert.deepStrictEqual(result.author, { name: 'Jane Doe', email: 'jane@example.com' });
+    assert.strictEqual(result.category, 'design');
+  });
+});
+
+test('validateComponent returns undefined author/category when not in frontmatter', () => {
+  withTempDir((tmpDir) => {
+    fs.writeFileSync(path.join(tmpDir, 'SKILL.md'),
+      '---\nname: test-skill\ndescription: A test skill\n---\nContent\n');
+    const result = validateComponent(path.join(tmpDir, 'SKILL.md'), validationConfig, { type: 'skill' });
+    assert.strictEqual(result.valid, true);
+    assert.strictEqual(result.author, undefined);
+    assert.strictEqual(result.category, undefined);
+  });
+});
+
+test('extractPluginMetadata uses component author/category over defaults', () => {
+  withTempDir((tmpDir) => {
+    const skillDir = path.join(tmpDir, 'my-skill');
+    fs.mkdirSync(skillDir);
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'),
+      '---\nname: my-skill\ndescription: A skill\nauthor:\n  name: Jane Doe\n  email: jane@example.com\ncategory: design\n---\nContent\n');
+
+    const plugin = {
+      name: 'my-skill',
+      category: 'code',
+      path: skillDir,
+      source: './code/my-skill',
+      components: { skills: [skillDir], commands: [], agents: [] }
+    };
+    const metadata = extractPluginMetadata(plugin, validationConfig);
+    assert.deepStrictEqual(metadata.author, { name: 'Jane Doe', email: 'jane@example.com' });
+    assert.strictEqual(metadata.category, 'design');
+  });
+});
+
+test('generateMarketplace uses frontmatter author/category when present', () => {
+  withTempDir((tmpDir) => {
+    const skillDir = path.join(tmpDir, 'my-skill');
+    fs.mkdirSync(skillDir);
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'),
+      '---\nname: my-skill\ndescription: A skill\nauthor:\n  name: Jane Doe\n  email: jane@example.com\ncategory: design\n---\nContent\n');
+
+    const plugins = [{
+      name: 'my-skill',
+      category: 'code',
+      path: skillDir,
+      source: './code/my-skill',
+      components: { skills: [skillDir], commands: [], agents: [] }
+    }];
+    const config = {
+      ...validationConfig,
+      marketplace: {
+        name: 'test-marketplace',
+        description: 'Test',
+        owner: { name: 'Default', email: 'default@example.com' }
+      }
+    };
+    const result = generateMarketplace(plugins, config);
+    assert.strictEqual(result.plugins.length, 1);
+    assert.deepStrictEqual(result.plugins[0].author, { name: 'Jane Doe', email: 'jane@example.com' });
+    assert.strictEqual(result.plugins[0].category, 'design');
+  });
+});
+
+test('generateMarketplace falls back to owner when no frontmatter author', () => {
+  withTempDir((tmpDir) => {
+    const skillDir = path.join(tmpDir, 'my-skill');
+    fs.mkdirSync(skillDir);
+    fs.writeFileSync(path.join(skillDir, 'SKILL.md'),
+      '---\nname: my-skill\ndescription: A skill\n---\nContent\n');
+
+    const plugins = [{
+      name: 'my-skill',
+      category: 'code',
+      path: skillDir,
+      source: './code/my-skill',
+      components: { skills: [skillDir], commands: [], agents: [] }
+    }];
+    const config = {
+      ...validationConfig,
+      marketplace: {
+        name: 'test-marketplace',
+        description: 'Test',
+        owner: { name: 'Default', email: 'default@example.com' }
+      }
+    };
+    const result = generateMarketplace(plugins, config);
+    assert.deepStrictEqual(result.plugins[0].author, { name: 'Default', email: 'default@example.com' });
+    assert.strictEqual(result.plugins[0].category, 'development');
   });
 });
 
