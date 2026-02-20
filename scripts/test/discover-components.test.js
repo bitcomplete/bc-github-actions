@@ -4,16 +4,20 @@
  * Run: node scripts/test/discover-components.test.js
  */
 
+const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const assert = require('assert');
 
 const {
   loadConfig,
+  classifyComponent,
   discoverAllComponents,
   getCategoryNames,
   groupIntoPlugins,
   discoverPlugins,
-  validateSkill
+  validateSkill,
+  mergeHooks
 } = require('../src/discover-components.js');
 
 const FIXTURES_DIR = path.resolve(__dirname, '../../test-fixtures/valid');
@@ -221,6 +225,171 @@ test('standalone skill validates successfully', () => {
 
   assert(result.valid, `standalone-skill should be valid, errors: ${result.errors.join(', ')}`);
   assert.strictEqual(result.name, 'standalone-skill');
+});
+
+// --- mergeHooks ---
+
+console.log('\nmergeHooks');
+
+test('handles nested hooks.json format with description + hooks wrapper', () => {
+  const hooksFiles = [{
+    path: '/fake/hooks/hooks.json',
+    content: {
+      description: 'Design engineering hooks',
+      hooks: {
+        UserPromptSubmit: [{ type: 'command', command: 'echo hello' }]
+      }
+    }
+  }];
+  const result = mergeHooks(hooksFiles);
+  assert.deepStrictEqual(result, {
+    UserPromptSubmit: [{ type: 'command', command: 'echo hello' }]
+  });
+});
+
+test('handles flat hooks.json format (backward compatibility)', () => {
+  const hooksFiles = [{
+    path: '/fake/hooks/hooks.json',
+    content: {
+      PreToolUse: [{ type: 'command', command: 'echo pre' }]
+    }
+  }];
+  const result = mergeHooks(hooksFiles);
+  assert.deepStrictEqual(result, {
+    PreToolUse: [{ type: 'command', command: 'echo pre' }]
+  });
+});
+
+test('merges mixed nested and flat formats from multiple files', () => {
+  const hooksFiles = [
+    {
+      path: '/fake/a/hooks.json',
+      content: {
+        description: 'Plugin A hooks',
+        hooks: {
+          UserPromptSubmit: [{ type: 'command', command: 'echo a' }]
+        }
+      }
+    },
+    {
+      path: '/fake/b/hooks.json',
+      content: {
+        UserPromptSubmit: [{ type: 'command', command: 'echo b' }],
+        PreToolUse: [{ type: 'command', command: 'echo pre' }]
+      }
+    }
+  ];
+  const result = mergeHooks(hooksFiles);
+  assert.strictEqual(result.UserPromptSubmit.length, 2);
+  assert.strictEqual(result.PreToolUse.length, 1);
+});
+
+test('skips non-array values gracefully', () => {
+  const hooksFiles = [{
+    path: '/fake/hooks/hooks.json',
+    content: {
+      description: 'Some description',
+      version: '1.0',
+      hooks: {
+        UserPromptSubmit: [{ type: 'command', command: 'echo hello' }]
+      }
+    }
+  }];
+  const result = mergeHooks(hooksFiles);
+  // Should only contain UserPromptSubmit, not description/version
+  assert.deepStrictEqual(Object.keys(result), ['UserPromptSubmit']);
+});
+
+test('returns null when no arrays found', () => {
+  const hooksFiles = [{
+    path: '/fake/hooks/hooks.json',
+    content: { description: 'Just metadata', version: '1.0' }
+  }];
+  const result = mergeHooks(hooksFiles);
+  assert.strictEqual(result, null);
+});
+
+// --- classifyComponent ---
+
+console.log('\nclassifyComponent');
+
+// Helper to create temp files for classifyComponent tests
+function withTempDir(fn) {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'discover-test-'));
+  try {
+    fn(tmpDir);
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+}
+
+const defaultConfig = {
+  discovery: {
+    skillFilename: 'SKILL.md',
+    commandsDir: 'commands',
+    agentsDir: 'agents'
+  }
+};
+
+test('.md file with no frontmatter is skipped (not an error)', () => {
+  withTempDir((tmpDir) => {
+    const filePath = path.join(tmpDir, 'notes.md');
+    fs.writeFileSync(filePath, '# Just some notes\n\nNo frontmatter here.\n');
+    const result = classifyComponent(filePath, tmpDir, defaultConfig);
+    assert.strictEqual(result.type, null);
+    assert.strictEqual(result.skipped, true);
+    assert.strictEqual(result.error, undefined);
+  });
+});
+
+test('.md file with frontmatter but no type uses heuristics', () => {
+  withTempDir((tmpDir) => {
+    const filePath = path.join(tmpDir, 'something.md');
+    fs.writeFileSync(filePath, '---\nexamples:\n  - test\n---\nContent\n');
+    const result = classifyComponent(filePath, tmpDir, defaultConfig);
+    // Should use field heuristics: has examples array without version → command
+    assert.strictEqual(result.type, 'command');
+  });
+});
+
+test('SKILL.md with no frontmatter is classified as skill (filename match)', () => {
+  withTempDir((tmpDir) => {
+    const filePath = path.join(tmpDir, 'SKILL.md');
+    fs.writeFileSync(filePath, '# My Skill\n\nNo frontmatter.\n');
+    const result = classifyComponent(filePath, tmpDir, defaultConfig);
+    assert.strictEqual(result.type, 'skill');
+  });
+});
+
+test('.md in commands/ dir with no frontmatter is classified as command (location match)', () => {
+  withTempDir((tmpDir) => {
+    const cmdDir = path.join(tmpDir, 'commands');
+    fs.mkdirSync(cmdDir);
+    const filePath = path.join(cmdDir, 'do-thing.md');
+    fs.writeFileSync(filePath, '# Do the thing\n\nNo frontmatter.\n');
+    const result = classifyComponent(filePath, tmpDir, defaultConfig);
+    assert.strictEqual(result.type, 'command');
+  });
+});
+
+test('.md in agents/ dir with no frontmatter is classified as agent (location match)', () => {
+  withTempDir((tmpDir) => {
+    const agentDir = path.join(tmpDir, 'agents');
+    fs.mkdirSync(agentDir);
+    const filePath = path.join(agentDir, 'helper.md');
+    fs.writeFileSync(filePath, '# Helper agent\n\nNo frontmatter.\n');
+    const result = classifyComponent(filePath, tmpDir, defaultConfig);
+    assert.strictEqual(result.type, 'agent');
+  });
+});
+
+test('.md with explicit type in frontmatter takes priority', () => {
+  withTempDir((tmpDir) => {
+    const filePath = path.join(tmpDir, 'random.md');
+    fs.writeFileSync(filePath, '---\ntype: agent\nname: test\n---\nContent\n');
+    const result = classifyComponent(filePath, tmpDir, defaultConfig);
+    assert.strictEqual(result.type, 'agent');
+  });
 });
 
 // --- Summary ---

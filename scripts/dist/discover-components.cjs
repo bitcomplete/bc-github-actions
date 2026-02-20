@@ -7382,6 +7382,9 @@ function classifyComponent(filePath, rootDir, config) {
   if (pathParts[0] === "skills" || pathParts.includes("skills")) {
     return { type: "skill", path: path.dirname(filePath) };
   }
+  if (!frontmatter || Object.keys(frontmatter).length === 0) {
+    return { type: null, path: filePath, skipped: true };
+  }
   if (frontmatter) {
     const hasExamples = Array.isArray(frontmatter.examples);
     const hasVersion = typeof frontmatter.version === "string";
@@ -7464,7 +7467,7 @@ function discoverMarkdownComponents(rootDir, config) {
             commands.push(classified.path);
           } else if (classified.type === "agent") {
             agents.push(classified.path);
-          } else {
+          } else if (!classified.skipped) {
             errors.push({ path: fullPath, error: classified.error });
           }
         }
@@ -7573,14 +7576,18 @@ function mergeHooks(hooksFiles) {
     return null;
   const merged = {};
   for (const { content } of hooksFiles) {
-    for (const [event, hooks] of Object.entries(content)) {
+    const hooksMap = content.hooks && typeof content.hooks === "object" && !Array.isArray(content.hooks) ? content.hooks : content;
+    for (const [event, hooks] of Object.entries(hooksMap)) {
+      if (!Array.isArray(hooks)) {
+        continue;
+      }
       if (!merged[event]) {
         merged[event] = [];
       }
       merged[event].push(...hooks);
     }
   }
-  return merged;
+  return Object.keys(merged).length > 0 ? merged : null;
 }
 function mergeMcpServers(mcpFiles) {
   if (mcpFiles.length === 0)

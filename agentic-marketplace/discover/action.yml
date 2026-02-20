@@ -36,9 +36,7 @@ runs:
         fi
 
         echo "Discovering components..."
-        OUTPUT=$(node "$SCRIPT_PATH" discover-all 2>&1)
-
-        if [ $? -ne 0 ]; then
+        if ! OUTPUT=$(node "$SCRIPT_PATH" discover-all 2>&1); then
           echo "ERROR: Discovery failed" >&2
           echo "$OUTPUT" >&2
           exit 1
