@@ -36,11 +36,19 @@ runs:
         fi
 
         echo "Discovering components..."
-        if ! OUTPUT=$(node "$SCRIPT_PATH" discover-all 2>&1); then
+        DISCOVER_STDERR=$(mktemp)
+        if ! OUTPUT=$(node "$SCRIPT_PATH" discover-all 2>"$DISCOVER_STDERR"); then
           echo "ERROR: Discovery failed" >&2
+          cat "$DISCOVER_STDERR" >&2
           echo "$OUTPUT" >&2
+          rm -f "$DISCOVER_STDERR"
           exit 1
         fi
+        # Show diagnostic messages in CI logs
+        if [ -s "$DISCOVER_STDERR" ]; then
+          cat "$DISCOVER_STDERR"
+        fi
+        rm -f "$DISCOVER_STDERR"
 
         # Output for other steps
         echo "components<<EOF" >> $GITHUB_OUTPUT
