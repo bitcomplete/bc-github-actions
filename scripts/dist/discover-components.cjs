@@ -7335,7 +7335,7 @@ function loadConfig() {
       process.exit(1);
     }
   }
-  console.log("No generator.config.toml or .json found, using defaults");
+  console.error("No generator.config.toml or .json found, using defaults");
   return defaults;
 }
 function validateAndMergeConfig(defaults, config) {

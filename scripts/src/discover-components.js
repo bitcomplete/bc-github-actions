@@ -156,7 +156,7 @@ function loadConfig() {
   }
 
   // No config file found - use defaults
-  console.log('No generator.config.toml or .json found, using defaults');
+  console.error('No generator.config.toml or .json found, using defaults');
   return defaults;
 }
 
