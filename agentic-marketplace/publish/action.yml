@@ -6,6 +6,10 @@ inputs:
   github-token:
     description: 'GitHub token for creating PRs'
     required: true
+  sign-files:
+    description: 'Sign generated marketplace files with Sigstore attestation'
+    required: false
+    default: 'true'
   auto-merge:
     description: 'Enable auto-merge for generated PR'
     required: false
@@ -33,6 +37,16 @@ outputs:
 runs:
   using: 'composite'
   steps:
+    - name: Sign marketplace files
+      if: ${{ inputs.sign-files == 'true' }}
+      uses: always-further/agent-sign@8d70fb7bdcdfb921a1613d0701ca44c7d6c34e6f # v0.0.8
+      with:
+        files: '.claude-plugin/marketplace.json'
+        per-file: 'true'
+        commit: 'false'
+        upload-artifacts: 'false'
+        verify: 'false'
+
     - name: Create Pull Request
       id: create-pr
       uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
@@ -56,6 +70,7 @@ runs:
           **Generated files:**
           - `.claude-plugin/marketplace.json` - marketplace manifest with unique source paths per plugin
           - `category/plugin-name/.claude-plugin/plugin.json` - individual plugin metadata
+          - `.claude-plugin/marketplace.json.bundle` - Sigstore attestation bundle (when signing is enabled)
 
           **This PR will auto-merge after CI checks pass.**
         branch: auto-update-marketplace
