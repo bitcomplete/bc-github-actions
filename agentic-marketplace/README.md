@@ -4,11 +4,12 @@ Automates Claude Code plugin marketplace management through auto-discovery, vali
 
 ## Overview
 
-The agentic-marketplace action provides three composable actions that work together to manage your Claude Code plugin marketplace:
+The agentic-marketplace action provides composable actions that work together to manage your Claude Code plugin marketplace:
 
 1. **discover** - Finds plugins, commands, agents, skills, hooks, and MCP servers
 2. **validate** - Validates component structure, naming, and metadata
-3. **generate** - Creates marketplace.json and plugin.json files, opens PR with auto-merge
+3. **generate** - Creates marketplace.json and plugin.json files
+4. **publish** - Signs generated files with Sigstore attestation and opens a PR with auto-merge
 
 ## Quick Start
 
@@ -25,6 +26,11 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write          # Required for Sigstore attestation signing
+
 jobs:
   update:
     uses: bitcomplete/bc-github-actions/.github/workflows/agentic-marketplace.yml@v1
@@ -32,6 +38,7 @@ jobs:
       config-path: .claude-plugin/generator.config.toml
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
+      pat: ${{ secrets.PAT }}
 ```
 
 ### Using Individual Actions
@@ -144,6 +151,7 @@ Generates marketplace.json and plugin.json files, then creates a pull request wi
 
 **Generated files:**
 - `.claude-plugin/marketplace.json` - Marketplace manifest with all plugins and components
+- `.claude-plugin/marketplace.json.bundle` - Sigstore attestation bundle (when signing is enabled)
 - `category/plugin-name/.claude-plugin/plugin.json` - Individual plugin metadata
 
 **Example:**
@@ -201,6 +209,7 @@ The marketplace action expects this structure:
 your-marketplace/
 ├── .claude-plugin/
 │   ├── marketplace.json          # Generated automatically
+│   ├── marketplace.json.bundle   # Sigstore attestation (generated)
 │   └── generator.config.toml     # Your configuration
 ├── .github/
 │   └── workflows/
@@ -257,6 +266,92 @@ The generate action creates or updates marketplace files:
 3. Creates a pull request with changes
 4. If `auto-merge: true`, enables auto-merge on the PR
 5. PR auto-merges when CI checks pass
+
+### Signing and Attestation
+
+The publish action automatically signs generated marketplace files using [Sigstore](https://sigstore.dev) keyless attestation via the [agent-sign](https://github.com/always-further/agent-sign) action. This creates a cryptographic proof that the file was built in your CI pipeline from your repository — not modified after the fact.
+
+**What gets signed:**
+
+- `.claude-plugin/marketplace.json` is signed, producing a `.claude-plugin/marketplace.json.bundle` sidecar file
+- The `.bundle` file is included in the auto-generated PR alongside the marketplace manifest
+
+**How signing works:**
+
+1. GitHub Actions mints a short-lived OIDC token identifying the workflow, repository, and branch
+2. Sigstore's Fulcio CA issues an ephemeral certificate binding that identity to a signing key
+3. The marketplace file is signed with that key, producing a [DSSE envelope](https://github.com/secure-systems-lab/dsse) with an [in-toto](https://in-toto.io/) statement
+4. The signature is logged in Sigstore's [Rekor](https://docs.sigstore.dev/logging/overview/) transparency log
+5. The resulting `.bundle` file contains the signature, certificate, and log inclusion proof — everything needed for offline verification
+
+No private keys to manage. Identity comes from the CI environment itself.
+
+**How users verify signatures:**
+
+Install the [nono CLI](https://github.com/always-further/nono), then verify against a trust policy:
+
+```bash
+nono trust verify --policy trust-policy.json --all
+```
+
+A trust policy defines who is allowed to sign which files. Example `trust-policy.json`:
+
+```json
+{
+  "version": 1,
+  "includes": [".claude-plugin/marketplace.json"],
+  "publishers": [
+    {
+      "name": "marketplace CI",
+      "issuer": "https://token.actions.githubusercontent.com",
+      "repository": "your-org/your-marketplace",
+      "workflow": ".github/workflows/agentic-marketplace.yml",
+      "ref_pattern": "refs/heads/main"
+    }
+  ],
+  "enforcement": "deny"
+}
+```
+
+Verification checks four things:
+
+1. **Certificate chain** — the signing certificate was issued by Sigstore's CA
+2. **Transparency log** — the signature was recorded in Rekor within the certificate's validity window
+3. **Signature validity** — the ECDSA signature over the file content is authentic
+4. **Publisher identity** — the OIDC claims in the certificate (repository, workflow, branch) match the trust policy
+
+If any check fails, verification fails. With `"enforcement": "deny"`, files matching the `includes` patterns are rejected unless they have a valid signature from a trusted publisher.
+
+**What this protects against:**
+
+- **Tampered marketplace files** — if someone modifies marketplace.json after it was generated in CI, the signature won't match
+- **Unauthorized publishing** — only the configured workflow in the configured repository can produce valid signatures
+- **Replay attacks** — signatures are timestamped via the transparency log; stale signatures can be rejected
+- **Key compromise** — there are no long-lived keys to steal; signing keys are ephemeral and exist only during the CI run
+
+**Runtime enforcement with nono:**
+
+For stronger guarantees, run agents through `nono run` which verifies signatures at the kernel level before the agent can read instruction files:
+
+```bash
+nono run --profile claude-code -- claude
+```
+
+This prevents time-of-check/time-of-use (TOCTOU) attacks where files are swapped between verification and read.
+
+**Disabling signing:**
+
+Signing is on by default. To disable it:
+
+```yaml
+jobs:
+  update:
+    uses: bitcomplete/bc-github-actions/.github/workflows/agentic-marketplace.yml@v1
+    with:
+      sign-files: false
+```
+
+When disabled, no `.bundle` files are created and the `id-token: write` permission is unused.
 
 ## Troubleshooting
 
