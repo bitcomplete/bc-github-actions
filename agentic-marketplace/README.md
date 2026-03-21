@@ -432,3 +432,33 @@ Use validation output to implement custom logic:
 ## Examples
 
 See the [main README](../README.md) for complete workflow examples and diagrams.
+
+## FAQ
+
+### Do I need nono to use this workflow?
+
+No. Signing is included by default, but the `.bundle` sidecar files are inert — they sit alongside your marketplace.json and are ignored by everything except nono verification tooling. Claude Code, plugin consumers, and your existing tooling won't read or care about `.bundle` files. You get supply chain security for free if you ever decide to verify later, and zero impact if you don't.
+
+### Will the `.bundle` files break anything?
+
+No. A `.bundle` file is a standalone JSON file containing the Sigstore attestation. It doesn't modify marketplace.json or any other file. Tools that don't know about it will ignore it. It's no different from having a `.gitignore` or `LICENSE` file in the directory — present but harmless.
+
+### Should I add `.bundle` files to `.gitignore`?
+
+No. The `.bundle` files need to be committed alongside the files they attest to. Verification works by comparing the `.bundle` against the file it signs, so both must be present in the repository. If you `.gitignore` them, you lose the ability to verify later.
+
+### Do I need the `id-token: write` permission if I'm not using nono?
+
+The workflow requests this permission to obtain the OIDC token used for keyless signing. It's harmless — the token is scoped to Sigstore's Fulcio CA and can only be used to request a signing certificate. If you disable signing with `sign-files: false`, the permission is unused but still safe to include.
+
+### Can I start verifying signatures later?
+
+Yes. Every `.bundle` file committed to your repository is independently verifiable at any point in the future. The Rekor transparency log entry is permanent. You can adopt nono verification whenever you're ready — the signatures will already be there.
+
+### When should I disable signing?
+
+Most users should leave signing enabled. Reasons to disable:
+
+- Your CI environment doesn't support OIDC tokens (self-hosted runners without OIDC configured)
+- You have strict policies against external network calls during CI (Sigstore requires reaching Fulcio and Rekor)
+- You're running in an air-gapped environment
