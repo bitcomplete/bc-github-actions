@@ -167,31 +167,27 @@ Generates marketplace.json and plugin.json files, then creates a pull request wi
 The marketplace actions are configured via a TOML file at `.claude-plugin/generator.config.toml`:
 
 ```toml
-# Naming pattern for components
-naming_pattern = "^[a-z0-9]+(-[a-z0-9]+)*$"  # kebab-case
-
-# Reserved words that cannot appear in component names
-reserved_words = ["anthropic", "claude"]
-
-# Plugin discovery paths (glob patterns)
-plugin_categories = ["code/**", "analysis/**", "communication/**"]
-
-# Component types to discover
 [discovery]
-plugins = true
-commands = true
-skills = true
-agents = true
-hooks = true
-mcp_servers = true
+# Directories the scanner will not enter.
+excludeDirs = [".git", "node_modules", ".github", ".claude", "templates"]
 
-# Validation rules
+# Glob patterns to skip (case-insensitive).
+excludePatterns = ["**/template/**", "OPENCODE.md", "CLAUDE.md"]
+
+# Skill definition filename.
+skillFilename = "SKILL.md"
+
 [validation]
-require_description = true
-require_version = true
-min_description_length = 10
-max_description_length = 200
+# Kebab-case by default.
+namePattern = "^[a-z0-9]+(-[a-z0-9]+)*$"
+reservedWords = ["anthropic", "claude"]
+nameMaxLength = 64
+descriptionMaxLength = 1024
 ```
+
+Discovery is excludes-only: components are any `<category>/<plugin-name>/` directory that isn't excluded. There is no include list. Any top-level directory that contains components becomes a category.
+
+> **Deprecated:** older configs set `pluginCategories = ["code/**", ...]` as an include list. The field is still accepted but has no effect — discovery now uses `excludeDirs` / `excludePatterns` only. Remove it when you touch the config.
 
 ## Repository Structure
 
@@ -224,7 +220,7 @@ your-marketplace/
 
 ### Discovery Process
 
-The discover action scans your repository based on the plugin_categories patterns in your config:
+The discover action walks your repository from root and gates only on `excludeDirs` / `excludePatterns`:
 
 1. Finds all directories matching the two-level pattern: `category/plugin-name/`
 2. Scans each plugin directory for:
@@ -235,6 +231,8 @@ The discover action scans your repository based on the plugin_categories pattern
    - MCP servers in `.mcp.json`
 3. Extracts metadata from YAML frontmatter in markdown files
 4. Outputs discovered components as JSON
+
+Validate and generate consume the exact same discovery output. A component that passes validate will appear in generate's marketplace.json by construction. Components found outside a `category/plugin-name/` path (e.g. at repo root) are orphans and fail both stages.
 
 ### Validation Process
 
@@ -263,8 +261,8 @@ The generate action creates or updates marketplace files:
 ### No components discovered
 
 Check that:
-- Your `generator.config.toml` `plugin_categories` patterns match your directory structure
 - Plugin directories follow the two-level pattern: `category/plugin-name/`
+- The plugin's directory isn't covered by `excludeDirs` / `excludePatterns`
 - Component files have proper YAML frontmatter
 
 ### Validation failures
@@ -333,6 +331,12 @@ Use validation output to implement custom logic:
     echo "Validation failed with errors:"
     echo '${{ steps.validate.outputs.errors }}'
 ```
+
+## Reliability
+
+### heal-stuck-prs
+
+Works around GitHub Actions infrastructure flake on auto-update-marketplace PRs. Scans for PRs stuck with no checks attached, jobs stuck in `queued` state, or stalled auto-merge, and applies targeted recovery. Runs on a cron schedule — see [`heal-stuck-prs/README.md`](heal-stuck-prs/README.md). This is not a replacement for the normal publish flow; only reach for it when GH-side flake has left a PR hanging.
 
 ## Examples
 

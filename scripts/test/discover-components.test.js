@@ -14,7 +14,6 @@ const {
   classifyComponent,
   discoverMarkdownComponents,
   discoverAllComponents,
-  getCategoryNames,
   groupIntoPlugins,
   discoverPlugins,
   validateSkill,
@@ -52,28 +51,6 @@ function loadFixtureConfig() {
     process.chdir(originalCwd);
   }
 }
-
-// --- getCategoryNames ---
-
-console.log('\ngetCategoryNames');
-
-test('extracts category names from globs', () => {
-  const config = { discovery: { pluginCategories: ['code/**', 'analysis/**'] } };
-  const names = getCategoryNames(config);
-  assert.deepStrictEqual(names, ['code', 'analysis']);
-});
-
-test('returns defaults when pluginCategories is empty', () => {
-  const config = { discovery: { pluginCategories: [] } };
-  const names = getCategoryNames(config);
-  assert.deepStrictEqual(names, ['code', 'analysis', 'communication', 'documents']);
-});
-
-test('returns defaults when pluginCategories is not set', () => {
-  const config = { discovery: {} };
-  const names = getCategoryNames(config);
-  assert.deepStrictEqual(names, ['code', 'analysis', 'communication', 'documents']);
-});
 
 // --- groupIntoPlugins ---
 
@@ -122,11 +99,16 @@ test('groups a plugin with subdirectories correctly', () => {
   assert.strictEqual(orphanedPaths.length, 0);
 });
 
-test('respects pluginCategories filter — unrecognized categories become orphans', () => {
+test('accepts any top-level directory as a category — no include filter', () => {
+  // Regression for the writing-coach bug: a component under a category not
+  // listed in pluginCategories used to be silently dropped. Discovery is now
+  // excludes-only; excludeDirs/excludePatterns are the only gate and run at
+  // the discovery stage (see discoverAllComponents). Anything reaching
+  // groupIntoPlugins is bucketed by its actual top-level directory.
   const rootDir = '/fake/root';
   const config = { discovery: { pluginCategories: ['code/**'] } };
   const components = {
-    skills: ['/fake/root/code/good-skill', '/fake/root/random/bad-skill'],
+    skills: ['/fake/root/code/good-skill', '/fake/root/communication/writing-coach'],
     commands: [],
     agents: [],
     hooksFiles: [],
@@ -135,14 +117,16 @@ test('respects pluginCategories filter — unrecognized categories become orphan
 
   const { plugins, orphanedPaths } = groupIntoPlugins(components, rootDir, config);
 
-  assert.strictEqual(plugins.length, 1);
-  assert.strictEqual(plugins[0].name, 'good-skill');
-  assert.deepStrictEqual(orphanedPaths, ['random/bad-skill']);
+  assert.strictEqual(plugins.length, 2);
+  const byName = Object.fromEntries(plugins.map(p => [p.name, p]));
+  assert.strictEqual(byName['good-skill'].category, 'code');
+  assert.strictEqual(byName['writing-coach'].category, 'communication');
+  assert.strictEqual(orphanedPaths.length, 0);
 });
 
 test('components at repo root are orphaned', () => {
   const rootDir = '/fake/root';
-  const config = { discovery: { pluginCategories: ['code/**'] } };
+  const config = { discovery: {} };
   const components = {
     skills: ['/fake/root/lonely-skill'],
     commands: [],
@@ -155,6 +139,25 @@ test('components at repo root are orphaned', () => {
 
   assert.strictEqual(plugins.length, 0);
   assert.deepStrictEqual(orphanedPaths, ['lonely-skill']);
+});
+
+test('stale pluginCategories in config does not change behavior', () => {
+  // Even with a restrictive include list, components outside it must still be
+  // bucketed. The field is deprecated but tolerated.
+  const rootDir = '/fake/root';
+  const config = { discovery: { pluginCategories: ['code/**'] } };
+  const components = {
+    skills: ['/fake/root/documents/doc-skill'],
+    commands: [],
+    agents: [],
+    hooksFiles: [],
+    mcpFiles: []
+  };
+
+  const { plugins, orphanedPaths } = groupIntoPlugins(components, rootDir, config);
+  assert.strictEqual(plugins.length, 1);
+  assert.strictEqual(plugins[0].category, 'documents');
+  assert.strictEqual(orphanedPaths.length, 0);
 });
 
 test('multiple plugins across categories', () => {
