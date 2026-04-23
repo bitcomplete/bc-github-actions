@@ -1,0 +1,119 @@
+name: 'Heal Stuck Marketplace PRs'
+description: 'Eventual-consistency workaround for GitHub Actions reliability flake on auto-update-marketplace PRs. Not a general automation layer.'
+author: 'Bitcomplete'
+
+inputs:
+  github-token:
+    description: 'GitHub token (GITHUB_TOKEN is fine — needs contents:write, pull-requests:write, actions:write).'
+    required: true
+  branch:
+    description: 'Branch name used by publish/action.yml for auto-generated PRs.'
+    required: false
+    default: 'auto-update-marketplace'
+  label:
+    description: 'Label used by publish/action.yml to mark auto-generated PRs.'
+    required: false
+    default: 'automated'
+  stuck-threshold-seconds:
+    description: 'A PR or job older than this (seconds) with no check runs, or with jobs still in queued/pending state, is considered stuck. 90s = 10x the observed runner-wait ceiling in healthy runs.'
+    required: false
+    default: '90'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Heal stuck PRs
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        HEAL_BRANCH: ${{ inputs.branch }}
+        HEAL_LABEL: ${{ inputs.label }}
+        HEAL_THRESHOLD: ${{ inputs.stuck-threshold-seconds }}
+      run: |
+        set -euo pipefail
+
+        REPO="${GITHUB_REPOSITORY}"
+        NOW=$(date -u +%s)
+
+        echo "heal-stuck-prs: scanning $REPO for open PRs on branch=$HEAL_BRANCH label=$HEAL_LABEL (threshold=${HEAL_THRESHOLD}s)"
+
+        # Enumerate candidate PRs: open, on our auto-update branch, with our label.
+        PRS=$(gh pr list \
+          --repo "$REPO" \
+          --state open \
+          --json number,createdAt,headRefName,headRefOid,labels,autoMergeRequest \
+          --jq "[.[] | select(.headRefName == \"$HEAL_BRANCH\" and ((.labels // []) | map(.name) | index(\"$HEAL_LABEL\")))]")
+
+        COUNT=$(echo "$PRS" | jq 'length')
+        if [ "$COUNT" = "0" ]; then
+          echo "heal-stuck-prs: no candidate PRs — nothing to heal"
+          exit 0
+        fi
+
+        echo "heal-stuck-prs: $COUNT candidate PR(s) to classify"
+
+        echo "$PRS" | jq -c '.[]' | while read -r PR; do
+          PR_NUM=$(echo "$PR" | jq -r '.number')
+          PR_SHA=$(echo "$PR" | jq -r '.headRefOid')
+          PR_CREATED=$(echo "$PR" | jq -r '.createdAt')
+          PR_AUTO_MERGE=$(echo "$PR" | jq -r '.autoMergeRequest // "null"')
+          PR_AGE=$(( NOW - $(date -u -d "$PR_CREATED" +%s) ))
+
+          # Jobs for all workflow runs associated with this head SHA.
+          RUNS=$(gh api "repos/$REPO/actions/runs?head_sha=$PR_SHA&per_page=100" \
+            --jq '[.workflow_runs[] | {id, status, conclusion}]' 2>/dev/null || echo '[]')
+          RUN_COUNT=$(echo "$RUNS" | jq 'length')
+
+          # Aggregate job state: count stuck-in-queue jobs across all runs.
+          STUCK_JOBS=0
+          STUCK_RUN_ID=""
+          if [ "$RUN_COUNT" -gt 0 ]; then
+            for RUN_ID in $(echo "$RUNS" | jq -r '.[].id'); do
+              JOBS=$(gh api "repos/$REPO/actions/runs/$RUN_ID/jobs" --jq '[.jobs[] | {status, created_at, started_at}]' 2>/dev/null || echo '[]')
+              N_STUCK=$(echo "$JOBS" | jq --argjson threshold "$HEAL_THRESHOLD" --argjson now "$NOW" '
+                [.[] | select(.started_at == null and .status != "completed")
+                     | select(($now - (.created_at | fromdateiso8601)) > $threshold)] | length')
+              if [ "$N_STUCK" -gt 0 ]; then
+                STUCK_JOBS=$(( STUCK_JOBS + N_STUCK ))
+                STUCK_RUN_ID="$RUN_ID"
+              fi
+            done
+          fi
+
+          # Classify and act.
+          if [ "$RUN_COUNT" = "0" ] && [ "$PR_AGE" -gt "$HEAL_THRESHOLD" ]; then
+            echo "heal-stuck-prs PR #$PR_NUM: [stuck — no workflow runs for head SHA, age=${PR_AGE}s] pushing empty commit to retrigger"
+            TMPDIR=$(mktemp -d)
+            git clone --depth 1 --branch "$HEAL_BRANCH" "https://x-access-token:$GH_TOKEN@github.com/$REPO.git" "$TMPDIR/repo"
+            pushd "$TMPDIR/repo" >/dev/null
+            git -c user.email="github-actions[bot]@users.noreply.github.com" -c user.name="github-actions[bot]" \
+              commit --allow-empty -m "chore: retrigger workflows (heal-stuck-prs)"
+            git push origin "$HEAL_BRANCH"
+            popd >/dev/null
+            rm -rf "$TMPDIR"
+            gh pr merge "$PR_NUM" --repo "$REPO" --auto --squash || echo "heal-stuck-prs PR #$PR_NUM: auto-merge re-enable deferred (checks not attached yet)"
+            continue
+          fi
+
+          if [ "$STUCK_JOBS" -gt 0 ]; then
+            echo "heal-stuck-prs PR #$PR_NUM: [stuck — $STUCK_JOBS job(s) queued >${HEAL_THRESHOLD}s] cancelling run $STUCK_RUN_ID and re-running"
+            gh run cancel "$STUCK_RUN_ID" --repo "$REPO" || true
+            gh run rerun "$STUCK_RUN_ID" --repo "$REPO" --failed || gh run rerun "$STUCK_RUN_ID" --repo "$REPO" || true
+            gh pr merge "$PR_NUM" --repo "$REPO" --auto --squash || true
+            continue
+          fi
+
+          if [ "$PR_AUTO_MERGE" = "null" ]; then
+            echo "heal-stuck-prs PR #$PR_NUM: [stalled — auto-merge not set] re-enabling"
+            gh pr merge "$PR_NUM" --repo "$REPO" --auto --squash || echo "heal-stuck-prs PR #$PR_NUM: could not enable auto-merge"
+            continue
+          fi
+
+          echo "heal-stuck-prs PR #$PR_NUM: [healthy] skip (age=${PR_AGE}s, runs=$RUN_COUNT)"
+        done
+
+        echo "heal-stuck-prs: done"
+
+branding:
+  icon: 'activity'
+  color: 'yellow'

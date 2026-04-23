@@ -178,6 +178,16 @@ function validateAndMergeConfig(defaults, config) {
     }
   }
 
+  // Deprecation: pluginCategories used to be an include list; discovery is
+  // now excludes-only (excludeDirs/excludePatterns). Tolerate the field in
+  // existing configs so nothing breaks; warn so consumers migrate.
+  if (Array.isArray(config?.discovery?.pluginCategories) && config.discovery.pluginCategories.length > 0) {
+    console.warn(
+      '[WARN] generator.config: discovery.pluginCategories is deprecated and no longer has any effect. ' +
+      'Discovery is excludes-only; remove the field.'
+    );
+  }
+
   return merged;
 }
 
@@ -1085,38 +1095,21 @@ function findAssociatedJson(componentPath, jsonFiles) {
 }
 
 /**
- * Extracts valid category directory names from pluginCategories config globs.
- * e.g. ["code/**", "analysis/**"] → ["code", "analysis"]
- * Falls back to hardcoded defaults when not set.
- * @param {Object} config - Configuration object
- * @returns {string[]} Array of category directory names
- */
-function getCategoryNames(config) {
-  const defaultCategories = ['code', 'analysis', 'communication', 'documents'];
-  const globs = config.discovery.pluginCategories;
-
-  if (!globs || globs.length === 0) {
-    return defaultCategories;
-  }
-
-  return globs.map(glob => glob.split('/')[0]).filter(Boolean);
-}
-
-/**
  * Groups discovered components into plugins by deriving plugin identity from paths.
  * Pure data transformation — no filesystem access.
  *
  * For each component path, extracts category/plugin-name from its path relative to rootDir.
- * Components whose paths don't match category/plugin-name/... are returned as orphans.
+ * Components whose paths don't match category/plugin-name/... (e.g. files at repo root)
+ * are returned as orphans. Category is whatever top-level directory the component sits
+ * under; the excludeDirs/excludePatterns applied during discovery are the only gate.
  *
  * @param {Object} components - Output of discoverAllComponents()
  * @param {string} rootDir - Root directory (for computing relative paths)
- * @param {Object} config - Configuration object
+ * @param {Object} _config - Configuration object (unused; kept for signature stability)
  * @returns {{ plugins: Array<Object>, orphanedPaths: string[] }}
  */
-function groupIntoPlugins(components, rootDir, config) {
+function groupIntoPlugins(components, rootDir, _config) {
   const absoluteRoot = path.resolve(rootDir);
-  const validCategories = getCategoryNames(config);
   const pluginMap = new Map(); // key: "category/plugin-name"
   const orphanedPaths = [];
 
@@ -1139,11 +1132,6 @@ function groupIntoPlugins(components, rootDir, config) {
 
     const category = parts[0];
     const pluginName = parts[1];
-
-    if (!validCategories.includes(category)) {
-      orphanedPaths.push(relPath);
-      continue;
-    }
 
     const key = `${category}/${pluginName}`;
     if (!pluginMap.has(key)) {
@@ -1362,7 +1350,6 @@ module.exports = {
   validateAgent,
   findDuplicateNames,
   discoverAllComponents,
-  getCategoryNames,
   groupIntoPlugins,
   discoverPlugins,
   extractPluginMetadata,
@@ -1386,6 +1373,7 @@ if (require.main === module) {
   } else if (command === 'validate') {
     const config = loadConfig();
     const components = discoverAllComponents('.', config);
+    const { orphanedPaths } = groupIntoPlugins(components, '.', config);
     let hasErrors = false;
 
     // Check for classification errors first
@@ -1396,6 +1384,16 @@ if (require.main === module) {
         console.error(`[FAIL] ${path}`);
         console.error(`  ${error.split('\n').join('\n  ')}\n`);
       });
+    }
+
+    // Orphans: discovered but not bucketed into a category/plugin-name directory.
+    // These would be silently dropped by generate, so fail here so the divergence
+    // between validate and generate cannot recur.
+    if (orphanedPaths.length > 0) {
+      hasErrors = true;
+      console.error('\n[FAIL] Components not under a category/plugin-name/ path:');
+      orphanedPaths.forEach(p => console.error(`  - ${p}`));
+      console.error('  Move each component under <category>/<plugin-name>/ so it can be included in marketplace.json.\n');
     }
 
     // Validate skills
@@ -1502,9 +1500,10 @@ if (require.main === module) {
     const { plugins, orphanedPaths } = groupIntoPlugins(components, '.', config);
 
     if (orphanedPaths.length > 0) {
-      console.warn('\n[WARN] Components not mapped to any plugin (not in a recognized category/plugin-name path):');
-      orphanedPaths.forEach(p => console.warn(`  - ${p}`));
-      console.warn('');
+      console.error('\n[FAIL] Components not under a category/plugin-name/ path:');
+      orphanedPaths.forEach(p => console.error(`  - ${p}`));
+      console.error('  Refusing to write an incomplete marketplace.json. Run `validate` for details.\n');
+      process.exit(1);
     }
 
     // Write individual plugin.json files

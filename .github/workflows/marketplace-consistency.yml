@@ -1,0 +1,40 @@
+# Eventual-consistency workaround for GitHub Actions reliability issues on
+# auto-update-marketplace PRs. Not a replacement for the normal publish flow —
+# only unsticks PRs whose workflow runs failed to start or got hung up by
+# GH-side flake. See agentic-marketplace/heal-stuck-prs/README.md.
+name: Marketplace Consistency
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: 'Branch used by publish/action.yml for auto-generated PRs.'
+        default: 'auto-update-marketplace'
+        type: string
+      label:
+        description: 'Label publish/action.yml sets on auto-generated PRs.'
+        default: 'automated'
+        type: string
+      stuck-threshold-seconds:
+        description: 'Age threshold (seconds) above which a PR/job is stuck.'
+        default: '90'
+        type: string
+    secrets:
+      token:
+        description: 'GITHUB_TOKEN is sufficient. Needs contents:write, pull-requests:write, actions:write.'
+        required: true
+
+jobs:
+  heal:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - uses: bitcomplete/bc-github-actions/agentic-marketplace/heal-stuck-prs@v1
+        with:
+          github-token: ${{ secrets.token }}
+          branch: ${{ inputs.branch }}
+          label: ${{ inputs.label }}
+          stuck-threshold-seconds: ${{ inputs.stuck-threshold-seconds }}

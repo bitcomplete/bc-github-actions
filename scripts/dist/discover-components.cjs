@@ -7347,6 +7347,11 @@ function validateAndMergeConfig(defaults, config) {
       process.exit(1);
     }
   }
+  if (Array.isArray(config?.discovery?.pluginCategories) && config.discovery.pluginCategories.length > 0) {
+    console.warn(
+      "[WARN] generator.config: discovery.pluginCategories is deprecated and no longer has any effect. Discovery is excludes-only; remove the field."
+    );
+  }
   return merged;
 }
 function classifyComponent(filePath, rootDir, config) {
@@ -7842,17 +7847,8 @@ function discoverAllComponents(rootDir, config) {
     skipped: mdComponents.skipped
   };
 }
-function getCategoryNames(config) {
-  const defaultCategories = ["code", "analysis", "communication", "documents"];
-  const globs = config.discovery.pluginCategories;
-  if (!globs || globs.length === 0) {
-    return defaultCategories;
-  }
-  return globs.map((glob) => glob.split("/")[0]).filter(Boolean);
-}
-function groupIntoPlugins(components, rootDir, config) {
+function groupIntoPlugins(components, rootDir, _config) {
   const absoluteRoot = path.resolve(rootDir);
-  const validCategories = getCategoryNames(config);
   const pluginMap = /* @__PURE__ */ new Map();
   const orphanedPaths = [];
   const allPaths = [
@@ -7869,10 +7865,6 @@ function groupIntoPlugins(components, rootDir, config) {
     }
     const category = parts[0];
     const pluginName = parts[1];
-    if (!validCategories.includes(category)) {
-      orphanedPaths.push(relPath);
-      continue;
-    }
     const key = `${category}/${pluginName}`;
     if (!pluginMap.has(key)) {
       pluginMap.set(key, {
@@ -8031,7 +8023,6 @@ module.exports = {
   validateAgent,
   findDuplicateNames,
   discoverAllComponents,
-  getCategoryNames,
   groupIntoPlugins,
   discoverPlugins,
   extractPluginMetadata,
@@ -8052,6 +8043,7 @@ if (require.main === module) {
   } else if (command === "validate") {
     const config = loadConfig();
     const components = discoverAllComponents(".", config);
+    const { orphanedPaths } = groupIntoPlugins(components, ".", config);
     let hasErrors = false;
     if (components.errors.length > 0) {
       hasErrors = true;
@@ -8061,6 +8053,12 @@ if (require.main === module) {
         console.error(`  ${error.split("\n").join("\n  ")}
 `);
       });
+    }
+    if (orphanedPaths.length > 0) {
+      hasErrors = true;
+      console.error("\n[FAIL] Components not under a category/plugin-name/ path:");
+      orphanedPaths.forEach((p) => console.error(`  - ${p}`));
+      console.error("  Move each component under <category>/<plugin-name>/ so it can be included in marketplace.json.\n");
     }
     console.log(`Found ${components.skills.length} skill(s) to validate
 `);
@@ -8154,9 +8152,10 @@ Found ${components.agents.length} agent(s) to validate
     const components = discoverAllComponents(".", config);
     const { plugins, orphanedPaths } = groupIntoPlugins(components, ".", config);
     if (orphanedPaths.length > 0) {
-      console.warn("\n[WARN] Components not mapped to any plugin (not in a recognized category/plugin-name path):");
-      orphanedPaths.forEach((p) => console.warn(`  - ${p}`));
-      console.warn("");
+      console.error("\n[FAIL] Components not under a category/plugin-name/ path:");
+      orphanedPaths.forEach((p) => console.error(`  - ${p}`));
+      console.error("  Refusing to write an incomplete marketplace.json. Run `validate` for details.\n");
+      process.exit(1);
     }
     writePluginJsonFiles(plugins, config);
     const marketplace = generateMarketplace(plugins, config);
