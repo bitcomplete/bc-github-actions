@@ -32,7 +32,10 @@ jobs:
       pull-requests: write
       actions: write
     steps:
-      - uses: bitcomplete/bc-github-actions/agentic-marketplace/heal-stuck-prs@v1
+      # SHA-pinned to the commit that introduced heal-stuck-prs. Bump this
+      # together with any change to the action itself so downstream consumers
+      # stay in lockstep (see AGENTS.md § Releasing).
+      - uses: bitcomplete/bc-github-actions/agentic-marketplace/heal-stuck-prs@144d5fc0cecb940c47750c4f1fc6123a42e61820
         with:
           github-token: ${{ secrets.token }}
           branch: ${{ inputs.branch }}
