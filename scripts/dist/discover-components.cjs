@@ -7922,10 +7922,23 @@ function discoverPlugins(rootDir, config) {
 }
 function extractPluginMetadata(plugin, config) {
   const { components } = plugin;
-  let pluginName = plugin.name;
-  let pluginDescription = `${plugin.name} plugin`;
+  const pluginName = plugin.name;
+  const placeholder = `${pluginName} plugin`;
+  let pluginDescription = placeholder;
   let pluginAuthor;
   let pluginCategory;
+  const curated = readCuratedPluginJson(plugin);
+  if (curated) {
+    if (typeof curated.description === "string" && curated.description.trim() && curated.description !== placeholder) {
+      pluginDescription = curated.description;
+    }
+    if (curated.author && typeof curated.author === "object") {
+      pluginAuthor = curated.author;
+    }
+    if (typeof curated.category === "string" && curated.category.trim()) {
+      pluginCategory = curated.category;
+    }
+  }
   const componentSources = [
     ...(components.agents || []).map((p) => validateAgent(p, config)),
     ...(components.commands || []).map((p) => validateCommand(p, config)),
@@ -7934,9 +7947,8 @@ function extractPluginMetadata(plugin, config) {
   for (const validation of componentSources) {
     if (!validation.valid)
       continue;
-    if (!pluginDescription || pluginDescription === `${plugin.name} plugin`) {
-      if (validation.description)
-        pluginDescription = validation.description;
+    if (pluginDescription === placeholder && validation.description) {
+      pluginDescription = validation.description;
     }
     if (!pluginAuthor && validation.author)
       pluginAuthor = validation.author;
@@ -7944,6 +7956,18 @@ function extractPluginMetadata(plugin, config) {
       pluginCategory = validation.category;
   }
   return { name: pluginName, description: pluginDescription, author: pluginAuthor, category: pluginCategory };
+}
+function readCuratedPluginJson(plugin) {
+  const src = plugin.source || (plugin.path ? "./" + path.relative(process.cwd(), plugin.path) : null);
+  if (!src)
+    return null;
+  const pluginJsonPath = path.join(src.replace(/^\.\//, ""), ".claude-plugin", "plugin.json");
+  try {
+    const content = fs.readFileSync(pluginJsonPath, "utf8");
+    return JSON.parse(content);
+  } catch {
+    return null;
+  }
 }
 function generatePluginJson(plugin, config) {
   const { owner } = config.marketplace;

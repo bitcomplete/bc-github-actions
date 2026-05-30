@@ -1203,20 +1203,52 @@ function discoverPlugins(rootDir, config) {
 }
 
 /**
- * Extracts name, description, author, and category from a plugin's components.
- * Validates each component type and takes metadata from the first valid one found.
+ * Extracts name, description, author, and category from a plugin's
+ * components.
+ *
+ * Description precedence (highest first):
+ *   1. An existing `.claude-plugin/plugin.json` description in the
+ *      plugin's source directory — lets plugin authors write a curated
+ *      "what is this plugin" sentence once, separate from any single
+ *      command/skill blurb. This is the right place to describe a
+ *      plugin that has multiple components, none of which alone
+ *      captures the whole.
+ *   2. The first valid component's description, in agents → commands
+ *      → skills order. Stable fallback for plugins that haven't
+ *      written a plugin.json yet.
+ *   3. `<plugin-name> plugin` placeholder if nothing else exists.
+ *
+ * Author + category follow the same "existing plugin.json wins, else
+ * first valid component" pattern.
+ *
  * @param {Object} plugin - Plugin metadata with components
  * @param {Object} config - Configuration object
  * @returns {{ name: string, description: string, author?: Object, category?: string }}
  */
 function extractPluginMetadata(plugin, config) {
   const { components } = plugin;
-  let pluginName = plugin.name;
-  let pluginDescription = `${plugin.name} plugin`;
+  const pluginName = plugin.name;
+  const placeholder = `${pluginName} plugin`;
+
+  // 1. Read the curated plugin.json if it exists.
+  let pluginDescription = placeholder;
   let pluginAuthor;
   let pluginCategory;
+  const curated = readCuratedPluginJson(plugin);
+  if (curated) {
+    if (typeof curated.description === 'string' && curated.description.trim() && curated.description !== placeholder) {
+      pluginDescription = curated.description;
+    }
+    if (curated.author && typeof curated.author === 'object') {
+      pluginAuthor = curated.author;
+    }
+    if (typeof curated.category === 'string' && curated.category.trim()) {
+      pluginCategory = curated.category;
+    }
+  }
 
-  // Validate all component types, take metadata from first valid one
+  // 2. Fall through to component-derived metadata for anything the
+  //    curated file didn't supply.
   const componentSources = [
     ...(components.agents || []).map(p => validateAgent(p, config)),
     ...(components.commands || []).map(p => validateCommand(p, config)),
@@ -1225,14 +1257,35 @@ function extractPluginMetadata(plugin, config) {
 
   for (const validation of componentSources) {
     if (!validation.valid) continue;
-    if (!pluginDescription || pluginDescription === `${plugin.name} plugin`) {
-      if (validation.description) pluginDescription = validation.description;
+    if (pluginDescription === placeholder && validation.description) {
+      pluginDescription = validation.description;
     }
     if (!pluginAuthor && validation.author) pluginAuthor = validation.author;
     if (!pluginCategory && validation.category) pluginCategory = validation.category;
   }
 
   return { name: pluginName, description: pluginDescription, author: pluginAuthor, category: pluginCategory };
+}
+
+/**
+ * Read an existing `.claude-plugin/plugin.json` from the plugin's
+ * source directory, if any. Returns null on missing / unreadable /
+ * invalid JSON.
+ *
+ * @param {Object} plugin - Plugin metadata; expected to carry a
+ *   `source` path (e.g. "./documents/sharing").
+ * @returns {Object|null}
+ */
+function readCuratedPluginJson(plugin) {
+  const src = plugin.source || (plugin.path ? './' + path.relative(process.cwd(), plugin.path) : null);
+  if (!src) return null;
+  const pluginJsonPath = path.join(src.replace(/^\.\//, ''), '.claude-plugin', 'plugin.json');
+  try {
+    const content = fs.readFileSync(pluginJsonPath, 'utf8');
+    return JSON.parse(content);
+  } catch {
+    return null;
+  }
 }
 
 /**

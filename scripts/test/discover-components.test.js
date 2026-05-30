@@ -496,6 +496,69 @@ test('validateComponent returns undefined author/category when not in frontmatte
   });
 });
 
+test('extractPluginMetadata prefers a curated .claude-plugin/plugin.json description', () => {
+  withTempDir((tmpDir) => {
+    // Plugin directory with multiple components — first by name has a
+    // narrow description that shouldn't speak for the whole plugin.
+    const pluginDir = tmpDir;
+    const skillsDir = path.join(pluginDir, 'skills', 'a-narrow');
+    fs.mkdirSync(skillsDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(skillsDir, 'SKILL.md'),
+      '---\nname: a-narrow\ndescription: Narrow blurb that should NOT be the plugin description.\n---\nbody\n'
+    );
+    const otherSkillDir = path.join(pluginDir, 'skills', 'z-other');
+    fs.mkdirSync(otherSkillDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(otherSkillDir, 'SKILL.md'),
+      '---\nname: z-other\ndescription: Second blurb.\n---\nbody\n'
+    );
+
+    // Curated plugin.json that describes the whole plugin.
+    const curatedDir = path.join(pluginDir, '.claude-plugin');
+    fs.mkdirSync(curatedDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(curatedDir, 'plugin.json'),
+      JSON.stringify({
+        name: 'my-plugin',
+        description: 'Curated description for the whole plugin.',
+        author: { name: 'Curator', email: 'c@example.com' }
+      })
+    );
+
+    const plugin = {
+      name: 'my-plugin',
+      category: 'code',
+      path: pluginDir,
+      source: pluginDir, // absolute path also accepted
+      components: { skills: [skillsDir, otherSkillDir], commands: [], agents: [] }
+    };
+    const metadata = extractPluginMetadata(plugin, validationConfig);
+    assert.strictEqual(metadata.description, 'Curated description for the whole plugin.');
+    assert.deepStrictEqual(metadata.author, { name: 'Curator', email: 'c@example.com' });
+  });
+});
+
+test('extractPluginMetadata falls back to first valid component when no plugin.json', () => {
+  withTempDir((tmpDir) => {
+    const skillDir = path.join(tmpDir, 'only-skill');
+    fs.mkdirSync(skillDir);
+    fs.writeFileSync(
+      path.join(skillDir, 'SKILL.md'),
+      '---\nname: only-skill\ndescription: Only blurb available.\n---\nbody\n'
+    );
+    const plugin = {
+      name: 'only-skill',
+      category: 'code',
+      path: skillDir,
+      source: skillDir,
+      components: { skills: [skillDir], commands: [], agents: [] }
+    };
+    const metadata = extractPluginMetadata(plugin, validationConfig);
+    assert.strictEqual(metadata.description, 'Only blurb available.');
+  });
+});
+
 test('extractPluginMetadata uses component author/category over defaults', () => {
   withTempDir((tmpDir) => {
     const skillDir = path.join(tmpDir, 'my-skill');
