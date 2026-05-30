@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 
-// scripts/src/opencode-release.js
+// src/opencode-release.js
 var fs = require("fs");
 var path = require("path");
 var { execSync } = require("child_process");
@@ -153,6 +153,17 @@ See INSTALL.md in the zip for detailed instructions.
     throw err;
   }
 }
+function computeReleaseVersion(env, now) {
+  if (env.RELEASE_VERSION)
+    return env.RELEASE_VERSION;
+  const dateVersion = now.toISOString().split("T")[0].replace(/-/g, ".");
+  const runNumber = env.GITHUB_RUN_NUMBER;
+  if (!runNumber)
+    return dateVersion;
+  const runAttempt = Number(env.GITHUB_RUN_ATTEMPT || "1");
+  const attemptSuffix = runAttempt > 1 ? `.${runAttempt}` : "";
+  return `${dateVersion}.r${runNumber}${attemptSuffix}`;
+}
 function detectChangedPlugins(marketplacePath) {
   if (!fs.existsSync(marketplacePath)) {
     console.error(`Marketplace file not found: ${marketplacePath}`);
@@ -189,7 +200,7 @@ function main() {
   }
   const marketplacePath = path.join(".claude-plugin", "marketplace.json");
   const releasesDir = path.join(process.cwd(), ".releases");
-  const version = process.env.RELEASE_VERSION || (/* @__PURE__ */ new Date()).toISOString().split("T")[0].replace(/-/g, ".");
+  const version = computeReleaseVersion(process.env, /* @__PURE__ */ new Date());
   console.log("Detecting changed plugins...");
   const changedPlugins = detectChangedPlugins(marketplacePath);
   if (changedPlugins.length === 0) {
@@ -229,5 +240,6 @@ module.exports = {
   generateInstallGuide,
   createPluginZip,
   createGitHubRelease,
-  detectChangedPlugins
+  detectChangedPlugins,
+  computeReleaseVersion
 };

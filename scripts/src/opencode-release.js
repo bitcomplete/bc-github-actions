@@ -244,6 +244,35 @@ See INSTALL.md in the zip for detailed instructions.
 }
 
 /**
+ * Compute the release version string.
+ *
+ * Precedence:
+ *   1. RELEASE_VERSION env override.
+ *   2. YYYY.MM.DD plus `.r<run_number>` when running in GitHub Actions
+ *      — makes the tag collision-free across multiple merges within
+ *      24h, which the bare date scheme can't handle.
+ *   3. When the run is a re-run (GITHUB_RUN_ATTEMPT > 1), append
+ *      `.<attempt>` so a reran failed publish doesn't try to reuse a
+ *      tag the first attempt may have already half-created.
+ *   4. Outside CI (no GITHUB_RUN_NUMBER), use the bare date — humans
+ *      get a clean version and can pass RELEASE_VERSION explicitly if
+ *      they care about uniqueness.
+ *
+ * @param {NodeJS.ProcessEnv} env
+ * @param {Date} now
+ * @returns {string}
+ */
+function computeReleaseVersion(env, now) {
+  if (env.RELEASE_VERSION) return env.RELEASE_VERSION;
+  const dateVersion = now.toISOString().split('T')[0].replace(/-/g, '.');
+  const runNumber = env.GITHUB_RUN_NUMBER;
+  if (!runNumber) return dateVersion;
+  const runAttempt = Number(env.GITHUB_RUN_ATTEMPT || '1');
+  const attemptSuffix = runAttempt > 1 ? `.${runAttempt}` : '';
+  return `${dateVersion}.r${runNumber}${attemptSuffix}`;
+}
+
+/**
  * Detect plugins with changes since last release
  * @param {string} marketplacePath - Path to marketplace.json
  * @returns {Array} Array of changed plugin objects
@@ -300,8 +329,17 @@ function main() {
   const marketplacePath = path.join('.claude-plugin', 'marketplace.json');
   const releasesDir = path.join(process.cwd(), '.releases');
 
-  // Get version from env or use date-based
-  const version = process.env.RELEASE_VERSION || new Date().toISOString().split('T')[0].replace(/-/g, '.');
+  // Version selection:
+  //   1. RELEASE_VERSION env override wins.
+  //   2. Otherwise default to YYYY.MM.DD, plus a `.r<run_number>` suffix
+  //      when running in GitHub Actions. The suffix makes the tag
+  //      collision-free across multiple merges on the same day — without
+  //      it, two pushes to main within 24h would both try to create
+  //      `<plugin>-v2026.05.30` and the second one would fail.
+  //   3. Outside CI, no suffix is added (humans running locally get the
+  //      clean date form and can pass RELEASE_VERSION explicitly if
+  //      they care about uniqueness).
+  const version = computeReleaseVersion(process.env, new Date());
 
   console.log('Detecting changed plugins...');
   const changedPlugins = detectChangedPlugins(marketplacePath);
@@ -357,5 +395,6 @@ module.exports = {
   generateInstallGuide,
   createPluginZip,
   createGitHubRelease,
-  detectChangedPlugins
+  detectChangedPlugins,
+  computeReleaseVersion
 };
