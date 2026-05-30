@@ -496,50 +496,68 @@ test('validateComponent returns undefined author/category when not in frontmatte
   });
 });
 
-test('extractPluginMetadata prefers a curated .claude-plugin/plugin.json description', () => {
+test('extractPluginMetadata prefers plugin README.md frontmatter over component blurbs', () => {
   withTempDir((tmpDir) => {
-    // Plugin directory with multiple components — first by name has a
-    // narrow description that shouldn't speak for the whole plugin.
+    // Multi-component plugin where the alphabetically-first component
+    // has a narrow description that mustn't speak for the whole.
     const pluginDir = tmpDir;
-    const skillsDir = path.join(pluginDir, 'skills', 'a-narrow');
-    fs.mkdirSync(skillsDir, { recursive: true });
+    const narrowDir = path.join(pluginDir, 'skills', 'a-narrow');
+    fs.mkdirSync(narrowDir, { recursive: true });
     fs.writeFileSync(
-      path.join(skillsDir, 'SKILL.md'),
-      '---\nname: a-narrow\ndescription: Narrow blurb that should NOT be the plugin description.\n---\nbody\n'
+      path.join(narrowDir, 'SKILL.md'),
+      '---\nname: a-narrow\ndescription: Narrow blurb — NOT the plugin description.\n---\nbody\n'
     );
-    const otherSkillDir = path.join(pluginDir, 'skills', 'z-other');
-    fs.mkdirSync(otherSkillDir, { recursive: true });
+    const otherDir = path.join(pluginDir, 'skills', 'z-other');
+    fs.mkdirSync(otherDir, { recursive: true });
     fs.writeFileSync(
-      path.join(otherSkillDir, 'SKILL.md'),
+      path.join(otherDir, 'SKILL.md'),
       '---\nname: z-other\ndescription: Second blurb.\n---\nbody\n'
     );
 
-    // Curated plugin.json that describes the whole plugin.
-    const curatedDir = path.join(pluginDir, '.claude-plugin');
-    fs.mkdirSync(curatedDir, { recursive: true });
+    // Author-owned README with curated frontmatter at the plugin root.
     fs.writeFileSync(
-      path.join(curatedDir, 'plugin.json'),
-      JSON.stringify({
-        name: 'my-plugin',
-        description: 'Curated description for the whole plugin.',
-        author: { name: 'Curator', email: 'c@example.com' }
-      })
+      path.join(pluginDir, 'README.md'),
+      '---\nname: my-plugin\ndescription: Curated whole-plugin description.\nauthor:\n  name: Curator\n  email: c@example.com\ncategory: writing\n---\n\n# my-plugin\n\nlong body\n'
     );
 
     const plugin = {
       name: 'my-plugin',
       category: 'code',
       path: pluginDir,
-      source: pluginDir, // absolute path also accepted
-      components: { skills: [skillsDir, otherSkillDir], commands: [], agents: [] }
+      source: pluginDir,
+      components: { skills: [narrowDir, otherDir], commands: [], agents: [] }
     };
     const metadata = extractPluginMetadata(plugin, validationConfig);
-    assert.strictEqual(metadata.description, 'Curated description for the whole plugin.');
+    assert.strictEqual(metadata.description, 'Curated whole-plugin description.');
     assert.deepStrictEqual(metadata.author, { name: 'Curator', email: 'c@example.com' });
+    assert.strictEqual(metadata.category, 'writing');
   });
 });
 
-test('extractPluginMetadata falls back to first valid component when no plugin.json', () => {
+test('README without frontmatter does not override component description', () => {
+  withTempDir((tmpDir) => {
+    const skillDir = path.join(tmpDir, 'only-skill');
+    fs.mkdirSync(skillDir);
+    fs.writeFileSync(
+      path.join(skillDir, 'SKILL.md'),
+      '---\nname: only-skill\ndescription: Plain blurb.\n---\nbody\n'
+    );
+    // README exists but has no frontmatter — should be ignored.
+    fs.writeFileSync(path.join(tmpDir, 'README.md'), '# only-skill\n\nUsage docs.\n');
+
+    const plugin = {
+      name: 'only-skill',
+      category: 'code',
+      path: tmpDir,
+      source: tmpDir,
+      components: { skills: [skillDir], commands: [], agents: [] }
+    };
+    const metadata = extractPluginMetadata(plugin, validationConfig);
+    assert.strictEqual(metadata.description, 'Plain blurb.');
+  });
+});
+
+test('extractPluginMetadata falls back to first valid component when no README exists', () => {
   withTempDir((tmpDir) => {
     const skillDir = path.join(tmpDir, 'only-skill');
     fs.mkdirSync(skillDir);

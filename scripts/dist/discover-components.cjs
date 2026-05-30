@@ -7927,16 +7927,16 @@ function extractPluginMetadata(plugin, config) {
   let pluginDescription = placeholder;
   let pluginAuthor;
   let pluginCategory;
-  const curated = readCuratedPluginJson(plugin);
-  if (curated) {
-    if (typeof curated.description === "string" && curated.description.trim() && curated.description !== placeholder) {
-      pluginDescription = curated.description;
+  const readme = readPluginReadmeFrontmatter(plugin);
+  if (readme) {
+    if (typeof readme.description === "string" && readme.description.trim()) {
+      pluginDescription = readme.description;
     }
-    if (curated.author && typeof curated.author === "object") {
-      pluginAuthor = curated.author;
+    if (readme.author && typeof readme.author === "object") {
+      pluginAuthor = readme.author;
     }
-    if (typeof curated.category === "string" && curated.category.trim()) {
-      pluginCategory = curated.category;
+    if (typeof readme.category === "string" && readme.category.trim()) {
+      pluginCategory = readme.category;
     }
   }
   const componentSources = [
@@ -7957,14 +7957,17 @@ function extractPluginMetadata(plugin, config) {
   }
   return { name: pluginName, description: pluginDescription, author: pluginAuthor, category: pluginCategory };
 }
-function readCuratedPluginJson(plugin) {
+function readPluginReadmeFrontmatter(plugin) {
   const src = plugin.source || (plugin.path ? "./" + path.relative(process.cwd(), plugin.path) : null);
   if (!src)
     return null;
-  const pluginJsonPath = path.join(src.replace(/^\.\//, ""), ".claude-plugin", "plugin.json");
+  const readmePath = path.isAbsolute(src) ? path.join(src, "README.md") : path.join(src.replace(/^\.\//, ""), "README.md");
   try {
-    const content = fs.readFileSync(pluginJsonPath, "utf8");
-    return JSON.parse(content);
+    const content = fs.readFileSync(readmePath, "utf8");
+    const parsed = matter(content);
+    if (!parsed.data || Object.keys(parsed.data).length === 0)
+      return null;
+    return parsed.data;
   } catch {
     return null;
   }

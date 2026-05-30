@@ -1207,18 +1207,20 @@ function discoverPlugins(rootDir, config) {
  * components.
  *
  * Description precedence (highest first):
- *   1. An existing `.claude-plugin/plugin.json` description in the
- *      plugin's source directory — lets plugin authors write a curated
- *      "what is this plugin" sentence once, separate from any single
- *      command/skill blurb. This is the right place to describe a
- *      plugin that has multiple components, none of which alone
- *      captures the whole.
+ *   1. Frontmatter on the plugin's `README.md`. A plugin large enough
+ *      to need a README — i.e. multiple components, none of which
+ *      describes the whole — is exactly the case where a single
+ *      auto-derived description fails. Author writes a sentence in
+ *      the README's frontmatter; the generator reads it. The
+ *      generated `.claude-plugin/plugin.json` is downstream output,
+ *      not a source of truth: it gets rewritten on every run, so it
+ *      can't be the curation surface.
  *   2. The first valid component's description, in agents → commands
- *      → skills order. Stable fallback for plugins that haven't
- *      written a plugin.json yet.
+ *      → skills order. Stable for single-component plugins where any
+ *      one component's description IS the whole plugin's description.
  *   3. `<plugin-name> plugin` placeholder if nothing else exists.
  *
- * Author + category follow the same "existing plugin.json wins, else
+ * Author + category follow the same "README frontmatter wins, else
  * first valid component" pattern.
  *
  * @param {Object} plugin - Plugin metadata with components
@@ -1230,25 +1232,26 @@ function extractPluginMetadata(plugin, config) {
   const pluginName = plugin.name;
   const placeholder = `${pluginName} plugin`;
 
-  // 1. Read the curated plugin.json if it exists.
   let pluginDescription = placeholder;
   let pluginAuthor;
   let pluginCategory;
-  const curated = readCuratedPluginJson(plugin);
-  if (curated) {
-    if (typeof curated.description === 'string' && curated.description.trim() && curated.description !== placeholder) {
-      pluginDescription = curated.description;
+
+  // 1. Plugin README frontmatter wins for any field it specifies.
+  const readme = readPluginReadmeFrontmatter(plugin);
+  if (readme) {
+    if (typeof readme.description === 'string' && readme.description.trim()) {
+      pluginDescription = readme.description;
     }
-    if (curated.author && typeof curated.author === 'object') {
-      pluginAuthor = curated.author;
+    if (readme.author && typeof readme.author === 'object') {
+      pluginAuthor = readme.author;
     }
-    if (typeof curated.category === 'string' && curated.category.trim()) {
-      pluginCategory = curated.category;
+    if (typeof readme.category === 'string' && readme.category.trim()) {
+      pluginCategory = readme.category;
     }
   }
 
-  // 2. Fall through to component-derived metadata for anything the
-  //    curated file didn't supply.
+  // 2. Fall through to component-derived metadata for fields the
+  //    README didn't supply.
   const componentSources = [
     ...(components.agents || []).map(p => validateAgent(p, config)),
     ...(components.commands || []).map(p => validateCommand(p, config)),
@@ -1268,21 +1271,25 @@ function extractPluginMetadata(plugin, config) {
 }
 
 /**
- * Read an existing `.claude-plugin/plugin.json` from the plugin's
- * source directory, if any. Returns null on missing / unreadable /
- * invalid JSON.
+ * Read frontmatter from `<plugin-source>/README.md`, if any. Returns
+ * the parsed frontmatter object, or null when no README exists, the
+ * file is unreadable, or it has no frontmatter block.
  *
- * @param {Object} plugin - Plugin metadata; expected to carry a
- *   `source` path (e.g. "./documents/sharing").
+ * @param {Object} plugin - Plugin metadata. `plugin.source` (e.g.
+ *   "./documents/sharing") is preferred; falls back to `plugin.path`.
  * @returns {Object|null}
  */
-function readCuratedPluginJson(plugin) {
+function readPluginReadmeFrontmatter(plugin) {
   const src = plugin.source || (plugin.path ? './' + path.relative(process.cwd(), plugin.path) : null);
   if (!src) return null;
-  const pluginJsonPath = path.join(src.replace(/^\.\//, ''), '.claude-plugin', 'plugin.json');
+  const readmePath = path.isAbsolute(src)
+    ? path.join(src, 'README.md')
+    : path.join(src.replace(/^\.\//, ''), 'README.md');
   try {
-    const content = fs.readFileSync(pluginJsonPath, 'utf8');
-    return JSON.parse(content);
+    const content = fs.readFileSync(readmePath, 'utf8');
+    const parsed = matter(content);
+    if (!parsed.data || Object.keys(parsed.data).length === 0) return null;
+    return parsed.data;
   } catch {
     return null;
   }
