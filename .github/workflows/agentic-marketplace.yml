@@ -22,6 +22,10 @@ on:
         description: 'Version for releases (default: YYYY.MM.DD)'
         default: ''
         type: string
+      sign-files:
+        description: 'Sign generated marketplace files with Sigstore attestation'
+        default: true
+        type: boolean
     secrets:
       token:
         description: 'GitHub token for read-only operations'
@@ -83,6 +87,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -99,6 +104,7 @@ jobs:
         uses: bitcomplete/bc-github-actions/agentic-marketplace/publish@v1
         with:
           github-token: ${{ secrets.pat }}
+          sign-files: ${{ inputs.sign-files }}
           auto-merge: ${{ inputs.auto-merge }}
           create-opencode-release: ${{ inputs.create-opencode-release }}
           release-version: ${{ inputs.release-version }}

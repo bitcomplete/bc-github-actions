@@ -101,3 +101,34 @@ jobs:
             echo "ERROR: marketplace.json not generated"
             exit 1
           fi
+
+  test-sign:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Generate marketplace files
+        working-directory: test-fixtures/valid
+        run: ../../scripts/dist/discover-components.cjs generate
+
+      - name: Sign marketplace files
+        uses: always-further/agent-sign@8d70fb7bdcdfb921a1613d0701ca44c7d6c34e6f # v0.0.8
+        with:
+          files: 'test-fixtures/valid/.claude-plugin/marketplace.json'
+          per-file: 'true'
+          commit: 'false'
+          verify: 'false'
+
+      - name: Verify bundle exists
+        run: |
+          if [ -f "test-fixtures/valid/.claude-plugin/marketplace.json.bundle" ]; then
+            echo "✓ Sigstore attestation bundle created"
+          else
+            echo "ERROR: No bundle file found"
+            find test-fixtures/valid -name "*.bundle" 2>/dev/null
+            exit 1
+          fi

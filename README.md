@@ -12,6 +12,7 @@ Automates Claude Code plugin marketplace management through auto-discovery, vali
 - Auto-discovery of plugins and components
 - Structure and naming validation
 - Automatic marketplace.json generation
+- Sigstore attestation signing for supply chain security
 - PR-based workflow with optional auto-merge
 
 [View agentic-marketplace action documentation →](agentic-marketplace/README.md)
@@ -25,8 +26,9 @@ graph LR
     A[Push to main] --> B[Discover]
     B --> C[Validate]
     C --> D[Generate]
-    D --> E[Create PR]
-    E --> F[Auto-merge]
+    D --> E[Sign]
+    E --> F[Create PR]
+    F --> G[Auto-merge]
 
     B -->|Finds| B1[Plugins]
     B -->|Finds| B2[Commands]
@@ -38,6 +40,8 @@ graph LR
 
     D -->|Updates| D1[marketplace.json]
     D -->|Updates| D2[Component files]
+
+    E -->|Creates| E1[.bundle attestation]
 ```
 
 **How it works:**
@@ -45,8 +49,9 @@ graph LR
 1. **Discover** - Scans your repository for plugins, commands, skills, and other components based on your configuration
 2. **Validate** - Checks that all components follow naming conventions, have required metadata, and match your validation rules
 3. **Generate** - Creates or updates marketplace.json with all discovered components
-4. **Create PR** - Opens a pull request with the changes for review
-5. **Auto-merge** - Optionally merges the PR automatically if validation passes
+4. **Sign** - Creates a Sigstore attestation bundle for marketplace.json, proving it was built in CI from this repository
+5. **Create PR** - Opens a pull request with the changes for review
+6. **Auto-merge** - Optionally merges the PR automatically if validation passes
 
 This happens automatically on every push to your main branch. No manual JSON editing required.
 
@@ -65,6 +70,11 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write          # Required for Sigstore attestation signing
+
 jobs:
   update:
     uses: bitcomplete/bc-github-actions/.github/workflows/agentic-marketplace.yml@v1
@@ -72,6 +82,7 @@ jobs:
       config-path: .claude-plugin/generator.config.toml
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
+      pat: ${{ secrets.PAT }}
 ```
 
 Or use individual actions in your own workflow:
