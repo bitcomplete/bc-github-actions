@@ -5,9 +5,9 @@ var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 
-// ../node_modules/kind-of/index.js
+// node_modules/kind-of/index.js
 var require_kind_of = __commonJS({
-  "../node_modules/kind-of/index.js"(exports2, module2) {
+  "node_modules/kind-of/index.js"(exports2, module2) {
     var toString = Object.prototype.toString;
     module2.exports = function kindOf(val) {
       if (val === void 0)
@@ -136,9 +136,9 @@ var require_kind_of = __commonJS({
   }
 });
 
-// ../node_modules/is-extendable/index.js
+// node_modules/is-extendable/index.js
 var require_is_extendable = __commonJS({
-  "../node_modules/is-extendable/index.js"(exports2, module2) {
+  "node_modules/is-extendable/index.js"(exports2, module2) {
     "use strict";
     module2.exports = function isExtendable(val) {
       return typeof val !== "undefined" && val !== null && (typeof val === "object" || typeof val === "function");
@@ -146,9 +146,9 @@ var require_is_extendable = __commonJS({
   }
 });
 
-// ../node_modules/extend-shallow/index.js
+// node_modules/extend-shallow/index.js
 var require_extend_shallow = __commonJS({
-  "../node_modules/extend-shallow/index.js"(exports2, module2) {
+  "node_modules/extend-shallow/index.js"(exports2, module2) {
     "use strict";
     var isObject2 = require_is_extendable();
     module2.exports = function extend(o) {
@@ -177,9 +177,9 @@ var require_extend_shallow = __commonJS({
   }
 });
 
-// ../node_modules/section-matter/index.js
+// node_modules/section-matter/index.js
 var require_section_matter = __commonJS({
-  "../node_modules/section-matter/index.js"(exports2, module2) {
+  "node_modules/section-matter/index.js"(exports2, module2) {
     "use strict";
     var typeOf = require_kind_of();
     var extend = require_extend_shallow();
@@ -284,9 +284,9 @@ var require_section_matter = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/common.js
+// node_modules/js-yaml/lib/js-yaml/common.js
 var require_common = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/common.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/common.js"(exports2, module2) {
     "use strict";
     function isNothing(subject) {
       return typeof subject === "undefined" || subject === null;
@@ -331,9 +331,9 @@ var require_common = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/exception.js
+// node_modules/js-yaml/lib/js-yaml/exception.js
 var require_exception = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/exception.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/exception.js"(exports2, module2) {
     "use strict";
     function YAMLException(reason, mark) {
       Error.call(this);
@@ -361,9 +361,9 @@ var require_exception = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/mark.js
+// node_modules/js-yaml/lib/js-yaml/mark.js
 var require_mark = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/mark.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/mark.js"(exports2, module2) {
     "use strict";
     var common = require_common();
     function Mark(name, buffer, position, line, column) {
@@ -420,9 +420,9 @@ var require_mark = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type.js
+// node_modules/js-yaml/lib/js-yaml/type.js
 var require_type = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type.js"(exports2, module2) {
     "use strict";
     var YAMLException = require_exception();
     var TYPE_CONSTRUCTOR_OPTIONS = [
@@ -479,9 +479,9 @@ var require_type = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/schema.js
+// node_modules/js-yaml/lib/js-yaml/schema.js
 var require_schema = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/schema.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/schema.js"(exports2, module2) {
     "use strict";
     var common = require_common();
     var YAMLException = require_exception();
@@ -567,9 +567,9 @@ var require_schema = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type/str.js
+// node_modules/js-yaml/lib/js-yaml/type/str.js
 var require_str = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type/str.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type/str.js"(exports2, module2) {
     "use strict";
     var Type = require_type();
     module2.exports = new Type("tag:yaml.org,2002:str", {
@@ -581,9 +581,9 @@ var require_str = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type/seq.js
+// node_modules/js-yaml/lib/js-yaml/type/seq.js
 var require_seq = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type/seq.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type/seq.js"(exports2, module2) {
     "use strict";
     var Type = require_type();
     module2.exports = new Type("tag:yaml.org,2002:seq", {
@@ -595,9 +595,9 @@ var require_seq = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type/map.js
+// node_modules/js-yaml/lib/js-yaml/type/map.js
 var require_map = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type/map.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type/map.js"(exports2, module2) {
     "use strict";
     var Type = require_type();
     module2.exports = new Type("tag:yaml.org,2002:map", {
@@ -609,9 +609,9 @@ var require_map = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/schema/failsafe.js
+// node_modules/js-yaml/lib/js-yaml/schema/failsafe.js
 var require_failsafe = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/schema/failsafe.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/schema/failsafe.js"(exports2, module2) {
     "use strict";
     var Schema = require_schema();
     module2.exports = new Schema({
@@ -624,9 +624,9 @@ var require_failsafe = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type/null.js
+// node_modules/js-yaml/lib/js-yaml/type/null.js
 var require_null = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type/null.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type/null.js"(exports2, module2) {
     "use strict";
     var Type = require_type();
     function resolveYamlNull(data) {
@@ -665,9 +665,9 @@ var require_null = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type/bool.js
+// node_modules/js-yaml/lib/js-yaml/type/bool.js
 var require_bool = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type/bool.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type/bool.js"(exports2, module2) {
     "use strict";
     var Type = require_type();
     function resolveYamlBoolean(data) {
@@ -703,9 +703,9 @@ var require_bool = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type/int.js
+// node_modules/js-yaml/lib/js-yaml/type/int.js
 var require_int = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type/int.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type/int.js"(exports2, module2) {
     "use strict";
     var common = require_common();
     var Type = require_type();
@@ -854,9 +854,9 @@ var require_int = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type/float.js
+// node_modules/js-yaml/lib/js-yaml/type/float.js
 var require_float = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type/float.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type/float.js"(exports2, module2) {
     "use strict";
     var common = require_common();
     var Type = require_type();
@@ -950,9 +950,9 @@ var require_float = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/schema/json.js
+// node_modules/js-yaml/lib/js-yaml/schema/json.js
 var require_json = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/schema/json.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/schema/json.js"(exports2, module2) {
     "use strict";
     var Schema = require_schema();
     module2.exports = new Schema({
@@ -969,9 +969,9 @@ var require_json = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/schema/core.js
+// node_modules/js-yaml/lib/js-yaml/schema/core.js
 var require_core = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/schema/core.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/schema/core.js"(exports2, module2) {
     "use strict";
     var Schema = require_schema();
     module2.exports = new Schema({
@@ -982,9 +982,9 @@ var require_core = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type/timestamp.js
+// node_modules/js-yaml/lib/js-yaml/type/timestamp.js
 var require_timestamp = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type/timestamp.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type/timestamp.js"(exports2, module2) {
     "use strict";
     var Type = require_type();
     var YAML_DATE_REGEXP = new RegExp(
@@ -1050,9 +1050,9 @@ var require_timestamp = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type/merge.js
+// node_modules/js-yaml/lib/js-yaml/type/merge.js
 var require_merge = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type/merge.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type/merge.js"(exports2, module2) {
     "use strict";
     var Type = require_type();
     function resolveYamlMerge(data) {
@@ -1065,9 +1065,9 @@ var require_merge = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type/binary.js
+// node_modules/js-yaml/lib/js-yaml/type/binary.js
 var require_binary = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type/binary.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type/binary.js"(exports2, module2) {
     "use strict";
     var NodeBuffer;
     try {
@@ -1161,9 +1161,9 @@ var require_binary = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type/omap.js
+// node_modules/js-yaml/lib/js-yaml/type/omap.js
 var require_omap = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type/omap.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type/omap.js"(exports2, module2) {
     "use strict";
     var Type = require_type();
     var _hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -1171,7 +1171,7 @@ var require_omap = __commonJS({
     function resolveYamlOmap(data) {
       if (data === null)
         return true;
-      var objectKeys = [], index, length, pair, pairKey, pairHasKey, object = data;
+      var objectKeys = {}, index, length, pair, pairKey, pairHasKey, object = data;
       for (index = 0, length = object.length; index < length; index += 1) {
         pair = object[index];
         pairHasKey = false;
@@ -1187,10 +1187,9 @@ var require_omap = __commonJS({
         }
         if (!pairHasKey)
           return false;
-        if (objectKeys.indexOf(pairKey) === -1)
-          objectKeys.push(pairKey);
-        else
+        if (_hasOwnProperty.call(objectKeys, pairKey))
           return false;
+        Object.defineProperty(objectKeys, pairKey, { value: true });
       }
       return true;
     }
@@ -1205,9 +1204,9 @@ var require_omap = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type/pairs.js
+// node_modules/js-yaml/lib/js-yaml/type/pairs.js
 var require_pairs = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type/pairs.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type/pairs.js"(exports2, module2) {
     "use strict";
     var Type = require_type();
     var _toString = Object.prototype.toString;
@@ -1247,9 +1246,9 @@ var require_pairs = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type/set.js
+// node_modules/js-yaml/lib/js-yaml/type/set.js
 var require_set = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type/set.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type/set.js"(exports2, module2) {
     "use strict";
     var Type = require_type();
     var _hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -1276,9 +1275,9 @@ var require_set = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/schema/default_safe.js
+// node_modules/js-yaml/lib/js-yaml/schema/default_safe.js
 var require_default_safe = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/schema/default_safe.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/schema/default_safe.js"(exports2, module2) {
     "use strict";
     var Schema = require_schema();
     module2.exports = new Schema({
@@ -1299,9 +1298,9 @@ var require_default_safe = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type/js/undefined.js
+// node_modules/js-yaml/lib/js-yaml/type/js/undefined.js
 var require_undefined = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type/js/undefined.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type/js/undefined.js"(exports2, module2) {
     "use strict";
     var Type = require_type();
     function resolveJavascriptUndefined() {
@@ -1326,9 +1325,9 @@ var require_undefined = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type/js/regexp.js
+// node_modules/js-yaml/lib/js-yaml/type/js/regexp.js
 var require_regexp = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type/js/regexp.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type/js/regexp.js"(exports2, module2) {
     "use strict";
     var Type = require_type();
     function resolveJavascriptRegExp(data) {
@@ -1379,9 +1378,9 @@ var require_regexp = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/type/js/function.js
+// node_modules/js-yaml/lib/js-yaml/type/js/function.js
 var require_function = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/type/js/function.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/type/js/function.js"(exports2, module2) {
     "use strict";
     var esprima;
     try {
@@ -1436,9 +1435,9 @@ var require_function = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/schema/default_full.js
+// node_modules/js-yaml/lib/js-yaml/schema/default_full.js
 var require_default_full = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/schema/default_full.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/schema/default_full.js"(exports2, module2) {
     "use strict";
     var Schema = require_schema();
     module2.exports = Schema.DEFAULT = new Schema({
@@ -1454,9 +1453,9 @@ var require_default_full = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/loader.js
+// node_modules/js-yaml/lib/js-yaml/loader.js
 var require_loader = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/loader.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/loader.js"(exports2, module2) {
     "use strict";
     var common = require_common();
     var YAMLException = require_exception();
@@ -1559,6 +1558,7 @@ var require_loader = __commonJS({
       this.legacy = options2["legacy"] || false;
       this.json = options2["json"] || false;
       this.listener = options2["listener"] || null;
+      this.maxTotalMergeKeys = typeof options2["maxTotalMergeKeys"] === "number" ? options2["maxTotalMergeKeys"] : 1e4;
       this.implicitTypes = this.schema.compiledImplicit;
       this.typeMap = this.schema.compiledTypeMap;
       this.length = input.length;
@@ -1566,6 +1566,7 @@ var require_loader = __commonJS({
       this.line = 0;
       this.lineStart = 0;
       this.lineIndent = 0;
+      this.totalMergeKeys = 0;
       this.documents = [];
     }
     function generateError(state, message) {
@@ -1650,6 +1651,9 @@ var require_loader = __commonJS({
       sourceKeys = Object.keys(source);
       for (index = 0, quantity = sourceKeys.length; index < quantity; index += 1) {
         key = sourceKeys[index];
+        if (state.maxTotalMergeKeys !== -1 && ++state.totalMergeKeys > state.maxTotalMergeKeys) {
+          throwError(state, "merge keys exceeded maxTotalMergeKeys (" + state.maxTotalMergeKeys + ")");
+        }
         if (!_hasOwnProperty.call(destination, key)) {
           setProperty(destination, key, source[key]);
           overridableKeys[key] = true;
@@ -2578,9 +2582,9 @@ var require_loader = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml/dumper.js
+// node_modules/js-yaml/lib/js-yaml/dumper.js
 var require_dumper = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml/dumper.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml/dumper.js"(exports2, module2) {
     "use strict";
     var common = require_common();
     var YAMLException = require_exception();
@@ -3136,9 +3140,9 @@ var require_dumper = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/lib/js-yaml.js
+// node_modules/js-yaml/lib/js-yaml.js
 var require_js_yaml = __commonJS({
-  "../node_modules/js-yaml/lib/js-yaml.js"(exports2, module2) {
+  "node_modules/js-yaml/lib/js-yaml.js"(exports2, module2) {
     "use strict";
     var loader = require_loader();
     var dumper = require_dumper();
@@ -3171,18 +3175,18 @@ var require_js_yaml = __commonJS({
   }
 });
 
-// ../node_modules/js-yaml/index.js
+// node_modules/js-yaml/index.js
 var require_js_yaml2 = __commonJS({
-  "../node_modules/js-yaml/index.js"(exports2, module2) {
+  "node_modules/js-yaml/index.js"(exports2, module2) {
     "use strict";
     var yaml2 = require_js_yaml();
     module2.exports = yaml2;
   }
 });
 
-// ../node_modules/gray-matter/lib/engines.js
+// node_modules/gray-matter/lib/engines.js
 var require_engines = __commonJS({
-  "../node_modules/gray-matter/lib/engines.js"(exports, module) {
+  "node_modules/gray-matter/lib/engines.js"(exports, module) {
     "use strict";
     var yaml = require_js_yaml2();
     var engines = exports = module.exports;
@@ -3218,9 +3222,9 @@ var require_engines = __commonJS({
   }
 });
 
-// ../node_modules/strip-bom-string/index.js
+// node_modules/strip-bom-string/index.js
 var require_strip_bom_string = __commonJS({
-  "../node_modules/strip-bom-string/index.js"(exports2, module2) {
+  "node_modules/strip-bom-string/index.js"(exports2, module2) {
     "use strict";
     module2.exports = function(str2) {
       if (typeof str2 === "string" && str2.charAt(0) === "\uFEFF") {
@@ -3231,9 +3235,9 @@ var require_strip_bom_string = __commonJS({
   }
 });
 
-// ../node_modules/gray-matter/lib/utils.js
+// node_modules/gray-matter/lib/utils.js
 var require_utils = __commonJS({
-  "../node_modules/gray-matter/lib/utils.js"(exports2) {
+  "node_modules/gray-matter/lib/utils.js"(exports2) {
     "use strict";
     var stripBom = require_strip_bom_string();
     var typeOf = require_kind_of();
@@ -3273,9 +3277,9 @@ var require_utils = __commonJS({
   }
 });
 
-// ../node_modules/gray-matter/lib/defaults.js
+// node_modules/gray-matter/lib/defaults.js
 var require_defaults = __commonJS({
-  "../node_modules/gray-matter/lib/defaults.js"(exports2, module2) {
+  "node_modules/gray-matter/lib/defaults.js"(exports2, module2) {
     "use strict";
     var engines2 = require_engines();
     var utils = require_utils();
@@ -3292,9 +3296,9 @@ var require_defaults = __commonJS({
   }
 });
 
-// ../node_modules/gray-matter/lib/engine.js
+// node_modules/gray-matter/lib/engine.js
 var require_engine = __commonJS({
-  "../node_modules/gray-matter/lib/engine.js"(exports2, module2) {
+  "node_modules/gray-matter/lib/engine.js"(exports2, module2) {
     "use strict";
     module2.exports = function(name, options2) {
       let engine = options2.engines[name] || options2.engines[aliase(name)];
@@ -3326,9 +3330,9 @@ var require_engine = __commonJS({
   }
 });
 
-// ../node_modules/gray-matter/lib/stringify.js
+// node_modules/gray-matter/lib/stringify.js
 var require_stringify = __commonJS({
-  "../node_modules/gray-matter/lib/stringify.js"(exports2, module2) {
+  "node_modules/gray-matter/lib/stringify.js"(exports2, module2) {
     "use strict";
     var typeOf = require_kind_of();
     var getEngine = require_engine();
@@ -3380,9 +3384,9 @@ var require_stringify = __commonJS({
   }
 });
 
-// ../node_modules/gray-matter/lib/excerpt.js
+// node_modules/gray-matter/lib/excerpt.js
 var require_excerpt = __commonJS({
-  "../node_modules/gray-matter/lib/excerpt.js"(exports2, module2) {
+  "node_modules/gray-matter/lib/excerpt.js"(exports2, module2) {
     "use strict";
     var defaults = require_defaults();
     module2.exports = function(file, options2) {
@@ -3407,9 +3411,9 @@ var require_excerpt = __commonJS({
   }
 });
 
-// ../node_modules/gray-matter/lib/to-file.js
+// node_modules/gray-matter/lib/to-file.js
 var require_to_file = __commonJS({
-  "../node_modules/gray-matter/lib/to-file.js"(exports2, module2) {
+  "node_modules/gray-matter/lib/to-file.js"(exports2, module2) {
     "use strict";
     var typeOf = require_kind_of();
     var stringify = require_stringify();
@@ -3441,9 +3445,9 @@ var require_to_file = __commonJS({
   }
 });
 
-// ../node_modules/gray-matter/lib/parse.js
+// node_modules/gray-matter/lib/parse.js
 var require_parse = __commonJS({
-  "../node_modules/gray-matter/lib/parse.js"(exports2, module2) {
+  "node_modules/gray-matter/lib/parse.js"(exports2, module2) {
     "use strict";
     var getEngine = require_engine();
     var defaults = require_defaults();
@@ -3458,9 +3462,9 @@ var require_parse = __commonJS({
   }
 });
 
-// ../node_modules/gray-matter/index.js
+// node_modules/gray-matter/index.js
 var require_gray_matter = __commonJS({
-  "../node_modules/gray-matter/index.js"(exports2, module2) {
+  "node_modules/gray-matter/index.js"(exports2, module2) {
     "use strict";
     var fs2 = require("fs");
     var sections = require_section_matter();
@@ -3575,9 +3579,9 @@ var require_gray_matter = __commonJS({
   }
 });
 
-// ../node_modules/balanced-match/index.js
+// node_modules/balanced-match/index.js
 var require_balanced_match = __commonJS({
-  "../node_modules/balanced-match/index.js"(exports2, module2) {
+  "node_modules/balanced-match/index.js"(exports2, module2) {
     "use strict";
     module2.exports = balanced;
     function balanced(a, b, str2) {
@@ -3635,9 +3639,9 @@ var require_balanced_match = __commonJS({
   }
 });
 
-// ../node_modules/brace-expansion/index.js
+// node_modules/brace-expansion/index.js
 var require_brace_expansion = __commonJS({
-  "../node_modules/brace-expansion/index.js"(exports2, module2) {
+  "node_modules/brace-expansion/index.js"(exports2, module2) {
     var balanced = require_balanced_match();
     module2.exports = expandTop;
     var escSlash = "\0SLASH" + Math.random() + "\0";
@@ -3645,6 +3649,8 @@ var require_brace_expansion = __commonJS({
     var escClose = "\0CLOSE" + Math.random() + "\0";
     var escComma = "\0COMMA" + Math.random() + "\0";
     var escPeriod = "\0PERIOD" + Math.random() + "\0";
+    var EXPANSION_MAX = 1e5;
+    var EXPANSION_MAX_LENGTH = 4e6;
     function numeric(str2) {
       return parseInt(str2, 10) == str2 ? parseInt(str2, 10) : str2.charCodeAt(0);
     }
@@ -3674,13 +3680,16 @@ var require_brace_expansion = __commonJS({
       parts.push.apply(parts, p);
       return parts;
     }
-    function expandTop(str2) {
+    function expandTop(str2, options2) {
       if (!str2)
         return [];
+      options2 = options2 || {};
+      var max = options2.max == null ? EXPANSION_MAX : options2.max;
+      var maxLength = options2.maxLength == null ? EXPANSION_MAX_LENGTH : options2.maxLength;
       if (str2.substr(0, 2) === "{}") {
         str2 = "\\{\\}" + str2.substr(2);
       }
-      return expand(escapeBraces(str2), true).map(unescapeBraces);
+      return expand(escapeBraces(str2), max, maxLength, true).map(unescapeBraces);
     }
     function embrace(str2) {
       return "{" + str2 + "}";
@@ -3694,19 +3703,95 @@ var require_brace_expansion = __commonJS({
     function gte(i, y) {
       return i >= y;
     }
-    function expand(str2, isTop) {
-      var expansions = [];
-      var m = balanced("{", "}", str2);
-      if (!m)
-        return [str2];
-      var pre = m.pre;
-      var post = m.post.length ? expand(m.post, false) : [""];
-      if (/\$$/.test(m.pre)) {
-        for (var k = 0; k < post.length; k++) {
-          var expansion = pre + "{" + m.body + "}" + post[k];
-          expansions.push(expansion);
+    function combine(acc, pre, values, max, maxLength, dropEmpties) {
+      var out = [];
+      var length = 0;
+      for (var a = 0; a < acc.length; a++) {
+        for (var v = 0; v < values.length; v++) {
+          if (out.length >= max)
+            return out;
+          var expansion = acc[a] + pre + values[v];
+          if (dropEmpties && !expansion)
+            continue;
+          if (length + expansion.length > maxLength)
+            return out;
+          out.push(expansion);
+          length += expansion.length;
         }
-      } else {
+      }
+      return out;
+    }
+    function expandSequence(body, isAlphaSequence, max, maxLength) {
+      var n = body.split(/\.\./);
+      var N = [];
+      if (n[0] === void 0 || n[1] === void 0) {
+        return N;
+      }
+      var x = numeric(n[0]);
+      var y = numeric(n[1]);
+      var width = Math.max(n[0].length, n[1].length);
+      var incr = n.length === 3 && n[2] !== void 0 ? Math.max(Math.abs(numeric(n[2])), 1) : 1;
+      var test = lte;
+      var reverse = y < x;
+      if (reverse) {
+        incr *= -1;
+        test = gte;
+      }
+      var pad = n.some(isPadded);
+      var length = 0;
+      for (var i = x; test(i, y) && N.length < max; i += incr) {
+        var c;
+        if (isAlphaSequence) {
+          c = String.fromCharCode(i);
+          if (c === "\\") {
+            c = "";
+          }
+        } else {
+          c = String(i);
+          if (pad) {
+            var need = width - c.length;
+            if (need > 0) {
+              var z = new Array(need + 1).join("0");
+              if (i < 0) {
+                c = "-" + z + c.slice(1);
+              } else {
+                c = z + c;
+              }
+            }
+          }
+        }
+        if (length + c.length > maxLength)
+          break;
+        N.push(c);
+        length += c.length;
+      }
+      return N;
+    }
+    function expand(str2, max, maxLength, isTop) {
+      var acc = [""];
+      var dropEmpties = false;
+      var firstGroup = true;
+      for (; ; ) {
+        const m = balanced("{", "}", str2);
+        if (!m) {
+          return combine(acc, str2, [""], max, maxLength, dropEmpties);
+        }
+        const pre = m.pre;
+        if (/\$$/.test(pre)) {
+          acc = combine(
+            acc,
+            pre + "{" + m.body + "}",
+            [""],
+            max,
+            maxLength,
+            dropEmpties && !m.post.length
+          );
+          firstGroup = false;
+          if (!m.post.length)
+            break;
+          str2 = m.post;
+          continue;
+        }
         var isNumericSequence = /^-?\d+\.\.-?\d+(?:\.\.-?\d+)?$/.test(m.body);
         var isAlphaSequence = /^[a-zA-Z]\.\.[a-zA-Z](?:\.\.-?\d+)?$/.test(m.body);
         var isSequence = isNumericSequence || isAlphaSequence;
@@ -3714,81 +3799,80 @@ var require_brace_expansion = __commonJS({
         if (!isSequence && !isOptions) {
           if (m.post.match(/,(?!,).*\}/)) {
             str2 = m.pre + "{" + m.body + escClose + m.post;
-            return expand(str2);
+            isTop = true;
+            continue;
           }
-          return [str2];
+          return combine(
+            acc,
+            pre + "{" + m.body + "}" + m.post,
+            [""],
+            max,
+            maxLength,
+            dropEmpties
+          );
         }
-        var n;
+        if (firstGroup) {
+          dropEmpties = isTop && !isSequence;
+          firstGroup = false;
+        }
+        var values;
         if (isSequence) {
-          n = m.body.split(/\.\./);
+          values = expandSequence(m.body, isAlphaSequence, max, maxLength);
         } else {
-          n = parseCommaParts(m.body);
-          if (n.length === 1) {
-            n = expand(n[0], false).map(embrace);
+          var n = parseCommaParts(m.body);
+          if (n.length === 1 && n[0] !== void 0) {
+            n = expand(n[0], max, maxLength, false).map(embrace);
             if (n.length === 1) {
-              return post.map(function(p) {
-                return m.pre + n[0] + p;
-              });
+              acc = combine(
+                acc,
+                pre + n[0],
+                [""],
+                max,
+                maxLength,
+                dropEmpties && !m.post.length
+              );
+              if (!m.post.length)
+                break;
+              str2 = m.post;
+              continue;
             }
           }
-        }
-        var N;
-        if (isSequence) {
-          var x = numeric(n[0]);
-          var y = numeric(n[1]);
-          var width = Math.max(n[0].length, n[1].length);
-          var incr = n.length == 3 ? Math.abs(numeric(n[2])) : 1;
-          var test = lte;
-          var reverse = y < x;
-          if (reverse) {
-            incr *= -1;
-            test = gte;
+          var dropsEmpties = dropEmpties && !m.post.length && !pre;
+          for (var d = 0; dropsEmpties && d < acc.length; d++) {
+            if (acc[d]) {
+              dropsEmpties = false;
+            }
           }
-          var pad = n.some(isPadded);
-          N = [];
-          for (var i = x; test(i, y); i += incr) {
-            var c;
-            if (isAlphaSequence) {
-              c = String.fromCharCode(i);
-              if (c === "\\")
-                c = "";
-            } else {
-              c = String(i);
-              if (pad) {
-                var need = width - c.length;
-                if (need > 0) {
-                  var z = new Array(need + 1).join("0");
-                  if (i < 0)
-                    c = "-" + z + c.slice(1);
-                  else
-                    c = z + c;
+          values = [];
+          var valuesLength = 0;
+          outer:
+            for (var j = 0; j < n.length; j++) {
+              var expanded = expand(n[j], max, maxLength, false);
+              for (var k = 0; k < expanded.length; k++) {
+                var v = expanded[k];
+                if (dropsEmpties && !v)
+                  continue;
+                if (values.length >= max || valuesLength + v.length > maxLength) {
+                  break outer;
                 }
+                values.push(v);
+                valuesLength += v.length;
               }
             }
-            N.push(c);
-          }
-        } else {
-          N = [];
-          for (var j = 0; j < n.length; j++) {
-            N.push.apply(N, expand(n[j], false));
-          }
         }
-        for (var j = 0; j < N.length; j++) {
-          for (var k = 0; k < post.length; k++) {
-            var expansion = pre + N[j] + post[k];
-            if (!isTop || isSequence || expansion)
-              expansions.push(expansion);
-          }
-        }
+        acc = combine(acc, pre, values, max, maxLength, dropEmpties && !m.post.length);
+        if (!m.post.length)
+          break;
+        str2 = m.post;
       }
-      return expansions;
+      return acc;
     }
   }
 });
 
-// ../node_modules/minimatch/dist/commonjs/assert-valid-pattern.js
+// node_modules/minimatch/dist/commonjs/assert-valid-pattern.js
 var require_assert_valid_pattern = __commonJS({
-  "../node_modules/minimatch/dist/commonjs/assert-valid-pattern.js"(exports2) {
+  "node_modules/minimatch/dist/commonjs/assert-valid-pattern.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.assertValidPattern = void 0;
@@ -3805,9 +3889,9 @@ var require_assert_valid_pattern = __commonJS({
   }
 });
 
-// ../node_modules/minimatch/dist/commonjs/brace-expressions.js
+// node_modules/minimatch/dist/commonjs/brace-expressions.js
 var require_brace_expressions = __commonJS({
-  "../node_modules/minimatch/dist/commonjs/brace-expressions.js"(exports2) {
+  "node_modules/minimatch/dist/commonjs/brace-expressions.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.parseClass = void 0;
@@ -3923,9 +4007,9 @@ var require_brace_expressions = __commonJS({
   }
 });
 
-// ../node_modules/minimatch/dist/commonjs/unescape.js
+// node_modules/minimatch/dist/commonjs/unescape.js
 var require_unescape = __commonJS({
-  "../node_modules/minimatch/dist/commonjs/unescape.js"(exports2) {
+  "node_modules/minimatch/dist/commonjs/unescape.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.unescape = void 0;
@@ -3936,16 +4020,43 @@ var require_unescape = __commonJS({
   }
 });
 
-// ../node_modules/minimatch/dist/commonjs/ast.js
+// node_modules/minimatch/dist/commonjs/ast.js
 var require_ast = __commonJS({
-  "../node_modules/minimatch/dist/commonjs/ast.js"(exports2) {
+  "node_modules/minimatch/dist/commonjs/ast.js"(exports2) {
     "use strict";
+    var _a;
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.AST = void 0;
     var brace_expressions_js_1 = require_brace_expressions();
     var unescape_js_1 = require_unescape();
     var types = /* @__PURE__ */ new Set(["!", "?", "+", "*", "@"]);
     var isExtglobType = (c) => types.has(c);
+    var isExtglobAST = (c) => isExtglobType(c.type);
+    var adoptionMap = /* @__PURE__ */ new Map([
+      ["!", ["@"]],
+      ["?", ["?", "@"]],
+      ["@", ["@"]],
+      ["*", ["*", "+", "?", "@"]],
+      ["+", ["+", "@"]]
+    ]);
+    var adoptionWithSpaceMap = /* @__PURE__ */ new Map([
+      ["!", ["?"]],
+      ["@", ["?"]],
+      ["+", ["?", "*"]]
+    ]);
+    var adoptionAnyMap = /* @__PURE__ */ new Map([
+      ["!", ["?", "@"]],
+      ["?", ["?", "@"]],
+      ["@", ["?", "@"]],
+      ["*", ["*", "+", "?", "@"]],
+      ["+", ["+", "@", "?", "*"]]
+    ]);
+    var usurpMap = /* @__PURE__ */ new Map([
+      ["!", /* @__PURE__ */ new Map([["!", "@"]])],
+      ["?", /* @__PURE__ */ new Map([["*", "*"], ["+", "*"]])],
+      ["@", /* @__PURE__ */ new Map([["!", "!"], ["?", "?"], ["@", "@"], ["*", "*"], ["+", "+"]])],
+      ["+", /* @__PURE__ */ new Map([["?", "*"], ["*", "*"]])]
+    ]);
     var startNoTraversal = "(?!(?:^|/)\\.\\.?(?:$|/))";
     var startNoDot = "(?!\\.)";
     var addPatternStart = /* @__PURE__ */ new Set(["[", "."]);
@@ -3955,7 +4066,7 @@ var require_ast = __commonJS({
     var qmark = "[^/]";
     var star = qmark + "*?";
     var starNoEmpty = qmark + "+?";
-    var AST = class _AST {
+    var AST = class {
       type;
       #root;
       #hasMagic;
@@ -4035,7 +4146,7 @@ var require_ast = __commonJS({
         for (const p of parts) {
           if (p === "")
             continue;
-          if (typeof p !== "string" && !(p instanceof _AST && p.#parent === this)) {
+          if (typeof p !== "string" && !(p instanceof _a && p.#parent === this)) {
             throw new Error("invalid part: " + p);
           }
           this.#parts.push(p);
@@ -4060,7 +4171,7 @@ var require_ast = __commonJS({
         const p = this.#parent;
         for (let i = 0; i < this.#parentIndex; i++) {
           const pp = p.#parts[i];
-          if (!(pp instanceof _AST && pp.type === "!")) {
+          if (!(pp instanceof _a && pp.type === "!")) {
             return false;
           }
         }
@@ -4085,13 +4196,14 @@ var require_ast = __commonJS({
           this.push(part.clone(this));
       }
       clone(parent) {
-        const c = new _AST(this.type, parent);
+        const c = new _a(this.type, parent);
         for (const p of this.#parts) {
           c.copyIn(p);
         }
         return c;
       }
-      static #parseAST(str2, ast, pos, opt) {
+      static #parseAST(str2, ast, pos, opt, extDepth) {
+        const maxDepth = opt.maxExtglobRecursion ?? 2;
         let escaping = false;
         let inBrace = false;
         let braceStart = -1;
@@ -4123,11 +4235,12 @@ var require_ast = __commonJS({
               acc2 += c;
               continue;
             }
-            if (!opt.noext && isExtglobType(c) && str2.charAt(i2) === "(") {
+            const doRecurse = !opt.noext && isExtglobType(c) && str2.charAt(i2) === "(" && extDepth <= maxDepth;
+            if (doRecurse) {
               ast.push(acc2);
               acc2 = "";
-              const ext = new _AST(c, ast);
-              i2 = _AST.#parseAST(str2, ext, i2, opt);
+              const ext = new _a(c, ast);
+              i2 = _a.#parseAST(str2, ext, i2, opt, extDepth + 1);
               ast.push(ext);
               continue;
             }
@@ -4137,7 +4250,7 @@ var require_ast = __commonJS({
           return i2;
         }
         let i = pos + 1;
-        let part = new _AST(null, ast);
+        let part = new _a(null, ast);
         const parts = [];
         let acc = "";
         while (i < str2.length) {
@@ -4164,19 +4277,22 @@ var require_ast = __commonJS({
             acc += c;
             continue;
           }
-          if (isExtglobType(c) && str2.charAt(i) === "(") {
+          const doRecurse = isExtglobType(c) && str2.charAt(i) === "(" && /* c8 ignore start - the maxDepth is sufficient here */
+          (extDepth <= maxDepth || ast && ast.#canAdoptType(c));
+          if (doRecurse) {
+            const depthAdd = ast && ast.#canAdoptType(c) ? 0 : 1;
             part.push(acc);
             acc = "";
-            const ext = new _AST(c, part);
+            const ext = new _a(c, part);
             part.push(ext);
-            i = _AST.#parseAST(str2, ext, i, opt);
+            i = _a.#parseAST(str2, ext, i, opt, extDepth + depthAdd);
             continue;
           }
           if (c === "|") {
             part.push(acc);
             acc = "";
             parts.push(part);
-            part = new _AST(null, ast);
+            part = new _a(null, ast);
             continue;
           }
           if (c === ")") {
@@ -4195,9 +4311,101 @@ var require_ast = __commonJS({
         ast.#parts = [str2.substring(pos - 1)];
         return i;
       }
+      #canAdoptWithSpace(child) {
+        return this.#canAdopt(child, adoptionWithSpaceMap);
+      }
+      #canAdopt(child, map = adoptionMap) {
+        if (!child || typeof child !== "object" || child.type !== null || child.#parts.length !== 1 || this.type === null) {
+          return false;
+        }
+        const gc = child.#parts[0];
+        if (!gc || typeof gc !== "object" || gc.type === null) {
+          return false;
+        }
+        return this.#canAdoptType(gc.type, map);
+      }
+      #canAdoptType(c, map = adoptionAnyMap) {
+        return !!map.get(this.type)?.includes(c);
+      }
+      #adoptWithSpace(child, index) {
+        const gc = child.#parts[0];
+        const blank = new _a(null, gc, this.options);
+        blank.#parts.push("");
+        gc.push(blank);
+        this.#adopt(child, index);
+      }
+      #adopt(child, index) {
+        const gc = child.#parts[0];
+        this.#parts.splice(index, 1, ...gc.#parts);
+        for (const p of gc.#parts) {
+          if (typeof p === "object")
+            p.#parent = this;
+        }
+        this.#toString = void 0;
+      }
+      #canUsurpType(c) {
+        const m = usurpMap.get(this.type);
+        return !!m?.has(c);
+      }
+      #canUsurp(child) {
+        if (!child || typeof child !== "object" || child.type !== null || child.#parts.length !== 1 || this.type === null || this.#parts.length !== 1) {
+          return false;
+        }
+        const gc = child.#parts[0];
+        if (!gc || typeof gc !== "object" || gc.type === null) {
+          return false;
+        }
+        return this.#canUsurpType(gc.type);
+      }
+      #usurp(child) {
+        const m = usurpMap.get(this.type);
+        const gc = child.#parts[0];
+        const nt = m?.get(gc.type);
+        if (!nt)
+          return false;
+        this.#parts = gc.#parts;
+        for (const p of this.#parts) {
+          if (typeof p === "object")
+            p.#parent = this;
+        }
+        this.type = nt;
+        this.#toString = void 0;
+        this.#emptyExt = false;
+      }
+      #flatten() {
+        if (!isExtglobAST(this)) {
+          for (const p of this.#parts) {
+            if (typeof p === "object")
+              p.#flatten();
+          }
+        } else {
+          let iterations = 0;
+          let done = false;
+          do {
+            done = true;
+            for (let i = 0; i < this.#parts.length; i++) {
+              const c = this.#parts[i];
+              if (typeof c === "object") {
+                c.#flatten();
+                if (this.#canAdopt(c)) {
+                  done = false;
+                  this.#adopt(c, i);
+                } else if (this.#canAdoptWithSpace(c)) {
+                  done = false;
+                  this.#adoptWithSpace(c, i);
+                } else if (this.#canUsurp(c)) {
+                  done = false;
+                  this.#usurp(c);
+                }
+              }
+            }
+          } while (!done && ++iterations < 10);
+        }
+        this.#toString = void 0;
+      }
       static fromGlob(pattern, options2 = {}) {
-        const ast = new _AST(null, void 0, options2);
-        _AST.#parseAST(pattern, ast, 0, options2);
+        const ast = new _a(null, void 0, options2);
+        _a.#parseAST(pattern, ast, 0, options2, 0);
         return ast;
       }
       // returns the regular expression if there's magic, or the unescaped
@@ -4291,12 +4499,14 @@ var require_ast = __commonJS({
       // or start or whatever) and prepend ^ or / at the Regexp construction.
       toRegExpSource(allowDot) {
         const dot = allowDot ?? !!this.#options.dot;
-        if (this.#root === this)
+        if (this.#root === this) {
+          this.#flatten();
           this.#fillNegs();
-        if (!this.type) {
+        }
+        if (!isExtglobAST(this)) {
           const noEmpty = this.isStart() && this.isEnd();
           const src = this.#parts.map((p) => {
-            const [re, _, hasMagic, uflag] = typeof p === "string" ? _AST.#parseGlob(p, this.#hasMagic, noEmpty) : p.toRegExpSource(allowDot);
+            const [re, _, hasMagic, uflag] = typeof p === "string" ? _a.#parseGlob(p, this.#hasMagic, noEmpty) : p.toRegExpSource(allowDot);
             this.#hasMagic = this.#hasMagic || hasMagic;
             this.#uflag = this.#uflag || uflag;
             return re;
@@ -4335,9 +4545,10 @@ var require_ast = __commonJS({
         let body = this.#partsToRegExp(dot);
         if (this.isStart() && this.isEnd() && !body && this.type !== "!") {
           const s = this.toString();
-          this.#parts = [s];
-          this.type = null;
-          this.#hasMagic = void 0;
+          const me = this;
+          me.#parts = [s];
+          me.type = null;
+          me.#hasMagic = void 0;
           return [s, (0, unescape_js_1.unescape)(this.toString()), false, false];
         }
         let bodyDotAllowed = !repeated || allowDot || dot || !startNoDot ? "" : this.#partsToRegExp(true);
@@ -4378,11 +4589,13 @@ var require_ast = __commonJS({
         let escaping = false;
         let re = "";
         let uflag = false;
+        let inStar = false;
         for (let i = 0; i < glob.length; i++) {
           const c = glob.charAt(i);
           if (escaping) {
             escaping = false;
             re += (reSpecials.has(c) ? "\\" : "") + c;
+            inStar = false;
             continue;
           }
           if (c === "\\") {
@@ -4400,16 +4613,19 @@ var require_ast = __commonJS({
               uflag = uflag || needUflag;
               i += consumed - 1;
               hasMagic = hasMagic || magic;
+              inStar = false;
               continue;
             }
           }
           if (c === "*") {
-            if (noEmpty && glob === "*")
-              re += starNoEmpty;
-            else
-              re += star;
+            if (inStar)
+              continue;
+            inStar = true;
+            re += noEmpty && /^[*]+$/.test(glob) ? starNoEmpty : star;
             hasMagic = true;
             continue;
+          } else {
+            inStar = false;
           }
           if (c === "?") {
             re += qmark;
@@ -4422,12 +4638,13 @@ var require_ast = __commonJS({
       }
     };
     exports2.AST = AST;
+    _a = AST;
   }
 });
 
-// ../node_modules/minimatch/dist/commonjs/escape.js
+// node_modules/minimatch/dist/commonjs/escape.js
 var require_escape = __commonJS({
-  "../node_modules/minimatch/dist/commonjs/escape.js"(exports2) {
+  "node_modules/minimatch/dist/commonjs/escape.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.escape = void 0;
@@ -4438,9 +4655,9 @@ var require_escape = __commonJS({
   }
 });
 
-// ../node_modules/minimatch/dist/commonjs/index.js
+// node_modules/minimatch/dist/commonjs/index.js
 var require_commonjs = __commonJS({
-  "../node_modules/minimatch/dist/commonjs/index.js"(exports2) {
+  "node_modules/minimatch/dist/commonjs/index.js"(exports2) {
     "use strict";
     var __importDefault = exports2 && exports2.__importDefault || function(mod) {
       return mod && mod.__esModule ? mod : { "default": mod };
@@ -4606,11 +4823,13 @@ var require_commonjs = __commonJS({
       isWindows;
       platform;
       windowsNoMagicRoot;
+      maxGlobstarRecursion;
       regexp;
       constructor(pattern, options2 = {}) {
         (0, assert_valid_pattern_js_1.assertValidPattern)(pattern);
         options2 = options2 || {};
         this.options = options2;
+        this.maxGlobstarRecursion = options2.maxGlobstarRecursion ?? 200;
         this.pattern = pattern;
         this.platform = options2.platform || defaultPlatform;
         this.isWindows = this.platform === "win32";
@@ -4943,7 +5162,8 @@ var require_commonjs = __commonJS({
       // out of pattern, then that's fine, as long as all
       // the parts match.
       matchOne(file, pattern, partial = false) {
-        const options2 = this.options;
+        let fileStartIndex = 0;
+        let patternStartIndex = 0;
         if (this.isWindows) {
           const fileDrive = typeof file[0] === "string" && /^[a-z]:$/i.test(file[0]);
           const fileUNC = !fileDrive && file[0] === "" && file[1] === "" && file[2] === "?" && /^[a-z]:$/i.test(file[3]);
@@ -4952,14 +5172,14 @@ var require_commonjs = __commonJS({
           const fdi = fileUNC ? 3 : fileDrive ? 0 : void 0;
           const pdi = patternUNC ? 3 : patternDrive ? 0 : void 0;
           if (typeof fdi === "number" && typeof pdi === "number") {
-            const [fd, pd] = [file[fdi], pattern[pdi]];
+            const [fd, pd] = [
+              file[fdi],
+              pattern[pdi]
+            ];
             if (fd.toLowerCase() === pd.toLowerCase()) {
               pattern[pdi] = fd;
-              if (pdi > fdi) {
-                pattern = pattern.slice(pdi);
-              } else if (fdi > pdi) {
-                file = file.slice(fdi);
-              }
+              patternStartIndex = pdi;
+              fileStartIndex = fdi;
             }
           }
         }
@@ -4967,51 +5187,118 @@ var require_commonjs = __commonJS({
         if (optimizationLevel >= 2) {
           file = this.levelTwoFileOptimize(file);
         }
-        this.debug("matchOne", this, { file, pattern });
-        this.debug("matchOne", file.length, pattern.length);
-        for (var fi = 0, pi = 0, fl = file.length, pl = pattern.length; fi < fl && pi < pl; fi++, pi++) {
+        if (pattern.includes(exports2.GLOBSTAR)) {
+          return this.#matchGlobstar(file, pattern, partial, fileStartIndex, patternStartIndex);
+        }
+        return this.#matchOne(file, pattern, partial, fileStartIndex, patternStartIndex);
+      }
+      #matchGlobstar(file, pattern, partial, fileIndex, patternIndex) {
+        const firstgs = pattern.indexOf(exports2.GLOBSTAR, patternIndex);
+        const lastgs = pattern.lastIndexOf(exports2.GLOBSTAR);
+        const [head, body, tail] = partial ? [
+          pattern.slice(patternIndex, firstgs),
+          pattern.slice(firstgs + 1),
+          []
+        ] : [
+          pattern.slice(patternIndex, firstgs),
+          pattern.slice(firstgs + 1, lastgs),
+          pattern.slice(lastgs + 1)
+        ];
+        if (head.length) {
+          const fileHead = file.slice(fileIndex, fileIndex + head.length);
+          if (!this.#matchOne(fileHead, head, partial, 0, 0))
+            return false;
+          fileIndex += head.length;
+        }
+        let fileTailMatch = 0;
+        if (tail.length) {
+          if (tail.length + fileIndex > file.length)
+            return false;
+          let tailStart = file.length - tail.length;
+          if (this.#matchOne(file, tail, partial, tailStart, 0)) {
+            fileTailMatch = tail.length;
+          } else {
+            if (file[file.length - 1] !== "" || fileIndex + tail.length === file.length) {
+              return false;
+            }
+            tailStart--;
+            if (!this.#matchOne(file, tail, partial, tailStart, 0))
+              return false;
+            fileTailMatch = tail.length + 1;
+          }
+        }
+        if (!body.length) {
+          let sawSome = !!fileTailMatch;
+          for (let i2 = fileIndex; i2 < file.length - fileTailMatch; i2++) {
+            const f = String(file[i2]);
+            sawSome = true;
+            if (f === "." || f === ".." || !this.options.dot && f.startsWith(".")) {
+              return false;
+            }
+          }
+          return partial || sawSome;
+        }
+        const bodySegments = [[[], 0]];
+        let currentBody = bodySegments[0];
+        let nonGsParts = 0;
+        const nonGsPartsSums = [0];
+        for (const b of body) {
+          if (b === exports2.GLOBSTAR) {
+            nonGsPartsSums.push(nonGsParts);
+            currentBody = [[], 0];
+            bodySegments.push(currentBody);
+          } else {
+            currentBody[0].push(b);
+            nonGsParts++;
+          }
+        }
+        let i = bodySegments.length - 1;
+        const fileLength = file.length - fileTailMatch;
+        for (const b of bodySegments) {
+          b[1] = fileLength - (nonGsPartsSums[i--] + b[0].length);
+        }
+        return !!this.#matchGlobStarBodySections(file, bodySegments, fileIndex, 0, partial, 0, !!fileTailMatch);
+      }
+      #matchGlobStarBodySections(file, bodySegments, fileIndex, bodyIndex, partial, globStarDepth, sawTail) {
+        const bs = bodySegments[bodyIndex];
+        if (!bs) {
+          for (let i = fileIndex; i < file.length; i++) {
+            sawTail = true;
+            const f = file[i];
+            if (f === "." || f === ".." || !this.options.dot && f.startsWith(".")) {
+              return false;
+            }
+          }
+          return sawTail;
+        }
+        const [body, after] = bs;
+        while (fileIndex <= after) {
+          const m = this.#matchOne(file.slice(0, fileIndex + body.length), body, partial, fileIndex, 0);
+          if (m && globStarDepth < this.maxGlobstarRecursion) {
+            const sub = this.#matchGlobStarBodySections(file, bodySegments, fileIndex + body.length, bodyIndex + 1, partial, globStarDepth + 1, sawTail);
+            if (sub !== false)
+              return sub;
+          }
+          const f = file[fileIndex];
+          if (f === "." || f === ".." || !this.options.dot && f.startsWith(".")) {
+            return false;
+          }
+          fileIndex++;
+        }
+        return partial || null;
+      }
+      #matchOne(file, pattern, partial, fileIndex, patternIndex) {
+        let fi;
+        let pi;
+        let pl;
+        let fl;
+        for (fi = fileIndex, pi = patternIndex, fl = file.length, pl = pattern.length; fi < fl && pi < pl; fi++, pi++) {
           this.debug("matchOne loop");
-          var p = pattern[pi];
-          var f = file[fi];
+          let p = pattern[pi];
+          let f = file[fi];
           this.debug(pattern, p, f);
-          if (p === false) {
+          if (p === false || p === exports2.GLOBSTAR)
             return false;
-          }
-          if (p === exports2.GLOBSTAR) {
-            this.debug("GLOBSTAR", [pattern, p, f]);
-            var fr = fi;
-            var pr = pi + 1;
-            if (pr === pl) {
-              this.debug("** at the end");
-              for (; fi < fl; fi++) {
-                if (file[fi] === "." || file[fi] === ".." || !options2.dot && file[fi].charAt(0) === ".")
-                  return false;
-              }
-              return true;
-            }
-            while (fr < fl) {
-              var swallowee = file[fr];
-              this.debug("\nglobstar while", file, fr, pattern, pr, swallowee);
-              if (this.matchOne(file.slice(fr), pattern.slice(pr), partial)) {
-                this.debug("globstar found match!", fr, fl, swallowee);
-                return true;
-              } else {
-                if (swallowee === "." || swallowee === ".." || !options2.dot && swallowee.charAt(0) === ".") {
-                  this.debug("dot detected!", file, fr, pattern, pr);
-                  break;
-                }
-                this.debug("globstar swallow a segment, and continue");
-                fr++;
-              }
-            }
-            if (partial) {
-              this.debug("\n>>> no match, partial?", file, fr, pattern, pr);
-              if (fr === fl) {
-                return true;
-              }
-            }
-            return false;
-          }
           let hit;
           if (typeof p === "string") {
             hit = f === p;
@@ -5190,9 +5477,9 @@ var require_commonjs = __commonJS({
   }
 });
 
-// ../node_modules/@iarna/toml/lib/parser.js
+// node_modules/@iarna/toml/lib/parser.js
 var require_parser = __commonJS({
-  "../node_modules/@iarna/toml/lib/parser.js"(exports2, module2) {
+  "node_modules/@iarna/toml/lib/parser.js"(exports2, module2) {
     "use strict";
     var ParserEND = 1114112;
     var ParserError = class _ParserError extends Error {
@@ -5322,9 +5609,9 @@ var require_parser = __commonJS({
   }
 });
 
-// ../node_modules/@iarna/toml/lib/create-datetime.js
+// node_modules/@iarna/toml/lib/create-datetime.js
 var require_create_datetime = __commonJS({
-  "../node_modules/@iarna/toml/lib/create-datetime.js"(exports2, module2) {
+  "node_modules/@iarna/toml/lib/create-datetime.js"(exports2, module2) {
     "use strict";
     module2.exports = (value) => {
       const date = new Date(value);
@@ -5337,9 +5624,9 @@ var require_create_datetime = __commonJS({
   }
 });
 
-// ../node_modules/@iarna/toml/lib/format-num.js
+// node_modules/@iarna/toml/lib/format-num.js
 var require_format_num = __commonJS({
-  "../node_modules/@iarna/toml/lib/format-num.js"(exports2, module2) {
+  "node_modules/@iarna/toml/lib/format-num.js"(exports2, module2) {
     "use strict";
     module2.exports = (d, num) => {
       num = String(num);
@@ -5350,9 +5637,9 @@ var require_format_num = __commonJS({
   }
 });
 
-// ../node_modules/@iarna/toml/lib/create-datetime-float.js
+// node_modules/@iarna/toml/lib/create-datetime-float.js
 var require_create_datetime_float = __commonJS({
-  "../node_modules/@iarna/toml/lib/create-datetime-float.js"(exports2, module2) {
+  "node_modules/@iarna/toml/lib/create-datetime-float.js"(exports2, module2) {
     "use strict";
     var f = require_format_num();
     var FloatingDateTime = class extends Date {
@@ -5377,9 +5664,9 @@ var require_create_datetime_float = __commonJS({
   }
 });
 
-// ../node_modules/@iarna/toml/lib/create-date.js
+// node_modules/@iarna/toml/lib/create-date.js
 var require_create_date = __commonJS({
-  "../node_modules/@iarna/toml/lib/create-date.js"(exports2, module2) {
+  "node_modules/@iarna/toml/lib/create-date.js"(exports2, module2) {
     "use strict";
     var f = require_format_num();
     var DateTime = global.Date;
@@ -5403,9 +5690,9 @@ var require_create_date = __commonJS({
   }
 });
 
-// ../node_modules/@iarna/toml/lib/create-time.js
+// node_modules/@iarna/toml/lib/create-time.js
 var require_create_time = __commonJS({
-  "../node_modules/@iarna/toml/lib/create-time.js"(exports2, module2) {
+  "node_modules/@iarna/toml/lib/create-time.js"(exports2, module2) {
     "use strict";
     var f = require_format_num();
     var Time = class extends Date {
@@ -5428,9 +5715,9 @@ var require_create_time = __commonJS({
   }
 });
 
-// ../node_modules/@iarna/toml/lib/toml-parser.js
+// node_modules/@iarna/toml/lib/toml-parser.js
 var require_toml_parser = __commonJS({
-  "../node_modules/@iarna/toml/lib/toml-parser.js"(exports, module) {
+  "node_modules/@iarna/toml/lib/toml-parser.js"(exports, module) {
     "use strict";
     module.exports = makeParserClass(require_parser());
     module.exports.makeParserClass = makeParserClass;
@@ -6758,9 +7045,9 @@ var require_toml_parser = __commonJS({
   }
 });
 
-// ../node_modules/@iarna/toml/parse-pretty-error.js
+// node_modules/@iarna/toml/parse-pretty-error.js
 var require_parse_pretty_error = __commonJS({
-  "../node_modules/@iarna/toml/parse-pretty-error.js"(exports2, module2) {
+  "node_modules/@iarna/toml/parse-pretty-error.js"(exports2, module2) {
     "use strict";
     module2.exports = prettyError;
     function prettyError(err, buf) {
@@ -6797,9 +7084,9 @@ var require_parse_pretty_error = __commonJS({
   }
 });
 
-// ../node_modules/@iarna/toml/parse-string.js
+// node_modules/@iarna/toml/parse-string.js
 var require_parse_string = __commonJS({
-  "../node_modules/@iarna/toml/parse-string.js"(exports2, module2) {
+  "node_modules/@iarna/toml/parse-string.js"(exports2, module2) {
     "use strict";
     module2.exports = parseString;
     var TOMLParser = require_toml_parser();
@@ -6819,9 +7106,9 @@ var require_parse_string = __commonJS({
   }
 });
 
-// ../node_modules/@iarna/toml/parse-async.js
+// node_modules/@iarna/toml/parse-async.js
 var require_parse_async = __commonJS({
-  "../node_modules/@iarna/toml/parse-async.js"(exports2, module2) {
+  "node_modules/@iarna/toml/parse-async.js"(exports2, module2) {
     "use strict";
     module2.exports = parseAsync;
     var TOMLParser = require_toml_parser();
@@ -6854,9 +7141,9 @@ var require_parse_async = __commonJS({
   }
 });
 
-// ../node_modules/@iarna/toml/parse-stream.js
+// node_modules/@iarna/toml/parse-stream.js
 var require_parse_stream = __commonJS({
-  "../node_modules/@iarna/toml/parse-stream.js"(exports2, module2) {
+  "node_modules/@iarna/toml/parse-stream.js"(exports2, module2) {
     "use strict";
     module2.exports = parseStream;
     var stream = require("stream");
@@ -6936,9 +7223,9 @@ var require_parse_stream = __commonJS({
   }
 });
 
-// ../node_modules/@iarna/toml/parse.js
+// node_modules/@iarna/toml/parse.js
 var require_parse2 = __commonJS({
-  "../node_modules/@iarna/toml/parse.js"(exports2, module2) {
+  "node_modules/@iarna/toml/parse.js"(exports2, module2) {
     "use strict";
     module2.exports = require_parse_string();
     module2.exports.async = require_parse_async();
@@ -6947,9 +7234,9 @@ var require_parse2 = __commonJS({
   }
 });
 
-// ../node_modules/@iarna/toml/stringify.js
+// node_modules/@iarna/toml/stringify.js
 var require_stringify2 = __commonJS({
-  "../node_modules/@iarna/toml/stringify.js"(exports2, module2) {
+  "node_modules/@iarna/toml/stringify.js"(exports2, module2) {
     "use strict";
     module2.exports = stringify;
     module2.exports.value = stringifyInline;
@@ -7220,16 +7507,16 @@ var require_stringify2 = __commonJS({
   }
 });
 
-// ../node_modules/@iarna/toml/toml.js
+// node_modules/@iarna/toml/toml.js
 var require_toml = __commonJS({
-  "../node_modules/@iarna/toml/toml.js"(exports2) {
+  "node_modules/@iarna/toml/toml.js"(exports2) {
     "use strict";
     exports2.parse = require_parse2();
     exports2.stringify = require_stringify2();
   }
 });
 
-// src/discover-components.js
+// scripts/src/discover-components.js
 var fs = require("fs");
 var path = require("path");
 var matter = require_gray_matter();
