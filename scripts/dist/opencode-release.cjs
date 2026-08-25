@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 
-// src/opencode-release.js
+// scripts/src/opencode-release.js
 var fs = require("fs");
 var path = require("path");
 var { execSync } = require("child_process");
