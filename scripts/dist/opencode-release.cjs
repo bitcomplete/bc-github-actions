@@ -154,12 +154,10 @@ See INSTALL.md in the zip for detailed instructions.
   }
 }
 function computeReleaseVersion(env, now) {
-  if (env.RELEASE_VERSION)
-    return env.RELEASE_VERSION;
+  if (env.RELEASE_VERSION) return env.RELEASE_VERSION;
   const dateVersion = now.toISOString().split("T")[0].replace(/-/g, ".");
   const runNumber = env.GITHUB_RUN_NUMBER;
-  if (!runNumber)
-    return dateVersion;
+  if (!runNumber) return dateVersion;
   const runAttempt = Number(env.GITHUB_RUN_ATTEMPT || "1");
   const attemptSuffix = runAttempt > 1 ? `.${runAttempt}` : "";
   return `${dateVersion}.r${runNumber}${attemptSuffix}`;
