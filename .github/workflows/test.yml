@@ -22,21 +22,25 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Test bundled script exists
+      # Both bundles matter: discover-components.cjs backs the discover/
+      # validate/generate actions, and opencode-release.cjs is run by the
+      # agentic-marketplace publish action. Only the first was checked here.
+      - name: Test bundled scripts exist, are executable, and parse
         run: |
-          if [ ! -f "scripts/dist/discover-components.cjs" ]; then
-            echo "ERROR: Bundled script not found"
-            exit 1
-          fi
-          echo "✓ Bundled script exists"
-
-      - name: Test bundled script is executable
-        run: |
-          if [ ! -x "scripts/dist/discover-components.cjs" ]; then
-            echo "ERROR: Bundled script not executable"
-            exit 1
-          fi
-          echo "✓ Bundled script is executable"
+          status=0
+          for f in scripts/dist/discover-components.cjs scripts/dist/opencode-release.cjs; do
+            if [ ! -f "$f" ]; then
+              echo "::error::bundled script not found: $f"; status=1; continue
+            fi
+            if [ ! -x "$f" ]; then
+              echo "::error::bundled script not executable: $f"; status=1; continue
+            fi
+            if ! node --check "$f"; then
+              echo "::error::bundled script is not valid JavaScript: $f"; status=1; continue
+            fi
+            echo "✓ $f exists, is executable, and parses"
+          done
+          exit $status
 
   test-discover-action:
     runs-on: ubuntu-latest
@@ -101,3 +105,34 @@ jobs:
             echo "ERROR: marketplace.json not generated"
             exit 1
           fi
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # `npm test` was not run by any workflow, so every unit test in
+      # scripts/test/ was passing locally and unenforced in CI.
+      - name: Run unit tests
+        run: npm test
+
+      # scripts/dist/*.cjs are committed artifacts consumed by the composite
+      # actions. Nothing checked that they match scripts/src/, so a source fix
+      # could be merged and never reach the action that runs it.
+      - name: Committed bundles match source
+        run: |
+          npm run build
+          if ! git diff --exit-code -- scripts/dist; then
+            echo "::error::scripts/dist is stale: run 'npm run build' and commit the result"
+            exit 1
+          fi
+          echo "✓ committed bundles are up to date with scripts/src"

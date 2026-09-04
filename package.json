@@ -5,7 +5,7 @@
   "private": false,
   "scripts": {
     "build": "node scripts/build.js",
-    "test": "node scripts/test/discover-components.test.js"
+    "test": "node scripts/run-tests.js"
   },
   "repository": {
     "type": "git",
